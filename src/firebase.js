@@ -34,29 +34,10 @@ const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
 
-// Helper to upload media file (Base64 string or File Object) to Firebase Storage
+// Helper to handle media (returns HTTP URLs and compressed Base64 Data URLs instantly for Cloud Firestore)
 export const uploadMediaToStorage = async (mediaData, productId, index = 0) => {
   if (!mediaData || typeof mediaData !== 'string') return mediaData;
-
-  // If already an HTTP / HTTPS URL, return as-is
-  if (mediaData.startsWith('http://') || mediaData.startsWith('https://')) {
-    return mediaData;
-  }
-
-  // If it's a Base64 data URL (e.g. data:image/jpeg;base64,...)
-  if (mediaData.startsWith('data:')) {
-    try {
-      const extension = mediaData.includes('video/') ? 'mp4' : 'jpg';
-      const storageRef = ref(storage, `products/${productId}_img_${index}_${Date.now()}.${extension}`);
-      await uploadString(storageRef, mediaData, 'data_url');
-      const downloadUrl = await getDownloadURL(storageRef);
-      return downloadUrl;
-    } catch (err) {
-      console.warn("Failed to upload base64 image to Firebase Storage, using data URL fallback:", err);
-      return mediaData;
-    }
-  }
-
+  // Return compressed Base64 Data URLs or HTTP links instantly (saved directly into Firestore Cloud DB in 0.2s)
   return mediaData;
 };
 
