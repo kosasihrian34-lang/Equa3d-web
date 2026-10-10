@@ -52,34 +52,20 @@ export default function App() {
     return localStorage.getItem('forge3d_admin_auth') === 'true';
   });
 
-  // 3. Products State (Persistent with automatic initial sync & v4 storage key)
+  // 3. Products State (Persistent with full user edit retention)
   const [products, setProducts] = useState(() => {
-    // Purge legacy storage keys if present
+    // Purge obsolete legacy keys
     localStorage.removeItem('forge3d_products');
     localStorage.removeItem('forge3d_products_v2');
+    localStorage.removeItem('forge3d_products_v3');
+    localStorage.removeItem('forge3d_products_v4');
 
-    const saved = localStorage.getItem('forge3d_products_v4');
-    const initialMap = new Map(INITIAL_PRODUCTS.map(p => [p.id, p]));
+    const saved = localStorage.getItem('forge3d_products_v5');
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          // Always replace default products (prod-001 to prod-014) with latest INITIAL_PRODUCTS definitions
-          const updated = parsed.map(p => {
-            if (initialMap.has(p.id)) {
-              return initialMap.get(p.id);
-            }
-            return p;
-          });
-
-          // Add any missing default products
-          const currentIds = new Set(updated.map(p => p.id));
-          INITIAL_PRODUCTS.forEach(p => {
-            if (!currentIds.has(p.id)) {
-              updated.push(p);
-            }
-          });
-          return updated;
+          return parsed;
         }
       } catch (err) {
         console.error("Failed to parse saved products", err);
@@ -91,9 +77,9 @@ export default function App() {
   // Save products to localStorage safely without throwing errors
   useEffect(() => {
     try {
-      localStorage.setItem('forge3d_products_v4', JSON.stringify(products));
+      localStorage.setItem('forge3d_products_v5', JSON.stringify(products));
     } catch (err) {
-      console.warn("localStorage storage limit reached, products kept safely in active memory:", err);
+      console.warn("localStorage quota limit reached, products kept safely in active memory:", err);
     }
   }, [products]);
 
