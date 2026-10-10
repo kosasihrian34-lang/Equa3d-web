@@ -80,15 +80,15 @@ export default function CatalogSection({
         marginBottom: '24px'
       }}>
         <div>
-          <h1 style={{ fontSize: '1.75rem', fontWeight: 800, color: '#0f172a' }}>
+          <h1 style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-primary)' }}>
             {t.catalogTitle}
           </h1>
-          <p style={{ color: '#64748b', fontSize: '0.9rem', marginTop: '4px' }}>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '4px' }}>
             {t.catalogSubtitle}
           </p>
         </div>
 
-        {/* View Mode Switcher (1 Kolom Besar vs 2 Kolom Zoom Out / Ringkas) */}
+        {/* View Mode Switcher */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           <div style={{
             display: 'flex',
@@ -99,30 +99,6 @@ export default function CatalogSection({
             borderRadius: '8px',
             border: '1px solid var(--border-light)'
           }}>
-            <button
-              type="button"
-              onClick={() => handleSetViewMode('grid-1')}
-              style={{
-                padding: '6px 10px',
-                borderRadius: '6px',
-                border: 'none',
-                background: viewMode === 'grid-1' ? 'var(--bg-card)' : 'transparent',
-                color: viewMode === 'grid-1' ? 'var(--primary-blue)' : 'var(--text-secondary)',
-                cursor: 'pointer',
-                fontWeight: 700,
-                fontSize: '0.78rem',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px',
-                boxShadow: viewMode === 'grid-1' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
-                transition: 'all 0.15s ease'
-              }}
-              title="Tampilan 1 Kolom (Besar / Fokus)"
-            >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
-              <span>Gede (1)</span>
-            </button>
-
             <button
               type="button"
               onClick={() => handleSetViewMode('grid-2')}
@@ -141,10 +117,34 @@ export default function CatalogSection({
                 boxShadow: viewMode === 'grid-2' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
                 transition: 'all 0.15s ease'
               }}
-              title="Tampilan Zoom Out (2 Kolom / Ringkas)"
+              title="Tampilan Ringkas / Zoom Out (2 Kolom)"
             >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="8" height="18" rx="1.5"/><rect x="13" y="3" width="8" height="18" rx="1.5"/></svg>
-              <span>Zoom Out (2)</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="8" height="18" rx="1.5"/><rect x="13" y="3" width="8" height="18" rx="1.5"/></svg>
+              <span>Ringkas (2)</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleSetViewMode('grid-1')}
+              style={{
+                padding: '6px 10px',
+                borderRadius: '6px',
+                border: 'none',
+                background: viewMode === 'grid-1' ? 'var(--bg-card)' : 'transparent',
+                color: viewMode === 'grid-1' ? 'var(--primary-blue)' : 'var(--text-secondary)',
+                cursor: 'pointer',
+                fontWeight: 700,
+                fontSize: '0.78rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                boxShadow: viewMode === 'grid-1' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                transition: 'all 0.15s ease'
+              }}
+              title="Tampilan Besar (1 Kolom)"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+              <span>Besar (1)</span>
             </button>
           </div>
 
