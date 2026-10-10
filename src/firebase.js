@@ -94,9 +94,12 @@ export const saveCloudProduct = async (product) => {
     updatedAt: new Date().toISOString()
   };
 
+  // Sanitize object for Firestore (strip undefined values)
+  const cleanProduct = JSON.parse(JSON.stringify(updatedProduct));
+
   const docRef = doc(db, "products", String(product.id));
-  await setDoc(docRef, updatedProduct, { merge: true });
-  return updatedProduct;
+  await setDoc(docRef, cleanProduct, { merge: true });
+  return cleanProduct;
 };
 
 // Delete product from Firestore
