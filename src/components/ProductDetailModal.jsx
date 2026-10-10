@@ -21,6 +21,15 @@ export default function ProductDetailModal({
   const [activeImgIdx, setActiveImgIdx] = useState(0);
   const [isZoomed, setIsZoomed] = useState(false);
 
+  // Prevent body background scroll when modal is open
+  useEffect(() => {
+    const originalStyle = window.getComputedStyle(document.body).overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = originalStyle;
+    };
+  }, []);
+
   // Sync selectedColor when product changes
   useEffect(() => {
     if (colorOpts.length > 0) {
@@ -94,9 +103,10 @@ export default function ProductDetailModal({
         style={{
           width: '100%',
           maxWidth: '880px',
+          maxHeight: '88vh',
+          overflowY: 'auto',
           padding: '0',
-          position: 'relative',
-          overflow: 'hidden'
+          position: 'relative'
         }}
       >
         {/* Close, Share & Favorite Top Buttons */}
