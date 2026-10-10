@@ -1,7 +1,7 @@
 import React from 'react';
 import { Eye, MessageSquare, Edit, Trash2, Layers, ShieldCheck, Cpu, Video, Heart, ShoppingBag, Share2 } from 'lucide-react';
 import { TRANSLATIONS } from '../data/translations';
-import { getLocalizedProduct, formatPriceDisplay } from '../data/initialProducts';
+import { getLocalizedProduct, formatPriceDisplay, getAssetUrl } from '../data/initialProducts';
 
 export default function ProductCard({ 
   product, 
