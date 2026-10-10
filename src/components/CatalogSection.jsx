@@ -55,6 +55,15 @@ export default function CatalogSection({
     });
   }, [products, searchTerm, selectedCategory, selectedMaterial, sortBy, showOnlyFavorites, favorites, lang]);
 
+  const [viewMode, setViewMode] = useState(() => {
+    return localStorage.getItem('forge3d_view_mode') || 'grid-2';
+  });
+
+  const handleSetViewMode = (mode) => {
+    setViewMode(mode);
+    localStorage.setItem('forge3d_view_mode', mode);
+  };
+
   return (
     <section style={{
       maxWidth: '1280px',
@@ -79,17 +88,78 @@ export default function CatalogSection({
           </p>
         </div>
 
-        {/* Admin Add Button */}
-        {isAdminLoggedIn && (
-          <button 
-            onClick={onOpenAddModal}
-            className="btn-primary"
-            style={{ padding: '10px 18px' }}
-          >
-            <Plus size={18} />
-            {t.addProduct}
-          </button>
-        )}
+        {/* View Mode Switcher (1 Kolom Besar vs 2 Kolom Zoom Out / Ringkas) */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '2px',
+            background: 'var(--bg-subtle)',
+            padding: '3px',
+            borderRadius: '8px',
+            border: '1px solid var(--border-light)'
+          }}>
+            <button
+              type="button"
+              onClick={() => handleSetViewMode('grid-1')}
+              style={{
+                padding: '6px 10px',
+                borderRadius: '6px',
+                border: 'none',
+                background: viewMode === 'grid-1' ? 'var(--bg-card)' : 'transparent',
+                color: viewMode === 'grid-1' ? 'var(--primary-blue)' : 'var(--text-secondary)',
+                cursor: 'pointer',
+                fontWeight: 700,
+                fontSize: '0.78rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                boxShadow: viewMode === 'grid-1' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                transition: 'all 0.15s ease'
+              }}
+              title="Tampilan 1 Kolom (Besar / Fokus)"
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+              <span>Gede (1)</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleSetViewMode('grid-2')}
+              style={{
+                padding: '6px 10px',
+                borderRadius: '6px',
+                border: 'none',
+                background: viewMode === 'grid-2' ? 'var(--bg-card)' : 'transparent',
+                color: viewMode === 'grid-2' ? 'var(--primary-blue)' : 'var(--text-secondary)',
+                cursor: 'pointer',
+                fontWeight: 700,
+                fontSize: '0.78rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                boxShadow: viewMode === 'grid-2' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                transition: 'all 0.15s ease'
+              }}
+              title="Tampilan Zoom Out (2 Kolom / Ringkas)"
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="8" height="18" rx="1.5"/><rect x="13" y="3" width="8" height="18" rx="1.5"/></svg>
+              <span>Zoom Out (2)</span>
+            </button>
+          </div>
+
+          {/* Admin Add Button */}
+          {isAdminLoggedIn && (
+            <button 
+              onClick={onOpenAddModal}
+              className="btn-primary"
+              style={{ padding: '10px 18px' }}
+            >
+              <Plus size={18} />
+              {t.addProduct}
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Quick Filter Tabs: Semua Produk vs Favorit Saya */}
@@ -285,7 +355,7 @@ export default function CatalogSection({
 
       {/* Product Grid */}
       {filteredProducts.length > 0 ? (
-        <div className="products-grid">
+        <div className={`products-grid ${viewMode}`}>
           {filteredProducts.map((product) => (
             <ProductCard
               key={product.id}

@@ -358,6 +358,60 @@ h1, h2, h3, h4, h5, h6 {
   gap: 24px;
 }
 
+.products-grid.grid-1 {
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+}
+
+.products-grid.grid-2 {
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+}
+
+@media (max-width: 640px) {
+  .products-grid.grid-1 {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .products-grid.grid-2 {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .products-grid.grid-2 .product-image-container {
+    height: 140px;
+  }
+
+  .products-grid.grid-2 .product-card {
+    border-radius: 10px;
+  }
+
+  .products-grid.grid-2 .product-card-content {
+    padding: 10px !important;
+  }
+
+  .products-grid.grid-2 .product-title {
+    font-size: 0.85rem !important;
+    line-height: 1.25 !important;
+    margin-bottom: 4px !important;
+  }
+
+  .products-grid.grid-2 .technical-pills {
+    display: none !important;
+  }
+
+  .products-grid.grid-2 .price-display {
+    font-size: 0.95rem !important;
+  }
+
+  .products-grid.grid-2 .action-btn-text {
+    display: none;
+  }
+
+  .products-grid.grid-2 .btn-secondary {
+    padding: 6px 8px !important;
+  }
+}
+
 .product-card {
   background: #ffffff;
   border: 1px solid #e2e8f0;

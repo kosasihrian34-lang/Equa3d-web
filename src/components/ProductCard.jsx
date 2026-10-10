@@ -235,7 +235,7 @@ export default function ProductCard({
       </div>
 
       {/* Card Info */}
-      <div style={{ padding: '18px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+      <div className="product-card-content" style={{ padding: '18px', flex: 1, display: 'flex', flexDirection: 'column' }}>
         <div 
           className="category-text"
           style={{ 
@@ -250,11 +250,12 @@ export default function ProductCard({
         </div>
 
         <h3 
+          className="product-title"
           onClick={() => onSelectProduct(localizedProd)}
           style={{ 
             fontSize: '1rem', 
             fontWeight: 700, 
-            color: '#0f172a',
+            color: 'var(--text-primary)',
             marginBottom: '8px',
             lineHeight: 1.35,
             cursor: 'pointer',
@@ -268,26 +269,29 @@ export default function ProductCard({
         </h3>
 
         {/* Technical Summary Pills */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '16px', fontSize: '0.75rem', color: '#64748b' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: '#f8fafc', padding: '3px 8px', borderRadius: '4px', border: '1px solid #f1f5f9' }}>
-            <Layers size={12} color="#475569" />
+        <div className="technical-pills" style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '16px', fontSize: '0.75rem', color: '#64748b' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'var(--bg-subtle)', padding: '3px 8px', borderRadius: '4px', border: '1px solid var(--border-light)' }}>
+            <Layers size={12} color="var(--text-secondary)" />
             <span>{localizedProd.infill}</span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: '#f8fafc', padding: '3px 8px', borderRadius: '4px', border: '1px solid #f1f5f9' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'var(--bg-subtle)', padding: '3px 8px', borderRadius: '4px', border: '1px solid var(--border-light)' }}>
             <ShieldCheck size={12} color="#16a34a" />
             <span>{(localizedProd.resolution || '0.20mm').split(' ')[0]}</span>
           </div>
         </div>
 
         {/* Price & Action Buttons */}
-        <div style={{ marginTop: 'auto', paddingTop: '12px', borderTop: '1px solid #f1f5f9' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-            <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{t.estimatedPrice}</div>
-            <div style={{ 
-              fontSize: '1.15rem', 
-              fontWeight: 800, 
-              color: '#0f172a' 
-            }}>
+        <div style={{ marginTop: 'auto', paddingTop: '10px', borderTop: '1px solid var(--border-light)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{t.estimatedPrice}</div>
+            <div 
+              className="price-display"
+              style={{ 
+                fontSize: '1.15rem', 
+                fontWeight: 800, 
+                color: 'var(--text-primary)' 
+              }}
+            >
               {formattedPrice}
             </div>
           </div>
@@ -299,7 +303,7 @@ export default function ProductCard({
               style={{ flex: 1, padding: '8px 10px', fontSize: '0.82rem', justifyContent: 'center' }}
             >
               <Eye size={15} />
-              {t.viewDetail}
+              <span className="action-btn-text">{t.viewDetail}</span>
             </button>
 
             {!isAdminLoggedIn && (
