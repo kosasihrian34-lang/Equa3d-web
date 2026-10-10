@@ -2,6 +2,7 @@ import React from 'react';
 import { Lock } from 'lucide-react';
 import { InstagramIcon, TikTokIcon } from './SocialIcons';
 import { TRANSLATIONS } from '../data/translations';
+import { getAssetUrl } from '../data/initialProducts';
 
 export default function Footer({ isAdminLoggedIn, onOpenAdminModal, onLogoutAdmin, lang = 'id', onOpenLogoModal, theme = 'light' }) {
   const t = TRANSLATIONS[lang] || TRANSLATIONS.id;
@@ -27,7 +28,7 @@ export default function Footer({ isAdminLoggedIn, onOpenAdminModal, onLogoutAdmi
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
             <img 
-              src={theme === 'dark' ? '/Logo-dark.png' : '/Logo.png'} 
+              src={getAssetUrl(theme === 'dark' ? '/Logo-dark.png' : '/Logo.png')} 
               alt="Equa3D Logo" 
               onClick={onOpenLogoModal}
               title="Klik untuk lihat logo full layar"

@@ -2,6 +2,7 @@ import React from 'react';
 import { LogOut, Shield, Package, Cpu, BookOpen, Globe, ShoppingBag, Heart, Sun, Moon } from 'lucide-react';
 import { InstagramIcon, TikTokIcon } from './SocialIcons';
 import { TRANSLATIONS } from '../data/translations';
+import { getAssetUrl } from '../data/initialProducts';
 
 export default function Navbar({ 
   isAdminLoggedIn, 
@@ -61,7 +62,7 @@ export default function Navbar({
               onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
             >
               <img 
-                src={theme === 'dark' ? '/Logo-dark.png' : '/Logo.png'} 
+                src={getAssetUrl(theme === 'dark' ? '/Logo-dark.png' : '/Logo.png')} 
                 alt="Equa3D Logo" 
                 style={{
                   height: '46px',

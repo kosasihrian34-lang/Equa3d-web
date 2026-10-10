@@ -1,3 +1,15 @@
+// Helper to resolve asset URLs dynamically according to Vite's base path (works on localhost & GitHub Pages subpaths)
+export const getAssetUrl = (path) => {
+  if (!path) return '';
+  if (typeof path !== 'string') return '';
+  if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:')) {
+    return path;
+  }
+  const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+  const baseUrl = import.meta.env.BASE_URL || '/';
+  return baseUrl.endsWith('/') ? `${baseUrl}${cleanPath}` : `${baseUrl}/${cleanPath}`;
+};
+
 export const INITIAL_PRODUCTS = [
   {
     id: "prod-001",
@@ -13,8 +25,8 @@ export const INITIAL_PRODUCTS = [
     printTime_en: "2 Hours",
     dimensions: "4 x 3 x 3 cm",
     weightGrams: 30,
-    image: "/products/Gym Keychain.webp",
-    images: ["/products/Gym Keychain.webp", "/products/Gym Keychain2.webp", "/products/Gym Keychain3.webp", "/products/Gym Keychain4.webp"],
+    image: "/products/Gym_Keychain.webp",
+    images: ["/products/Gym_Keychain.webp", "/products/Gym_Keychain2.webp", "/products/Gym_Keychain3.webp", "/products/Gym_Keychain4.webp"],
     description_id: "Gantungan kunci 3D bertema fitness, dumbbell, dan plate gym. Dicetak menggunakan bahan PLA padat yang kuat, kaku, dan tahan banting.",
     description_en: "3D printed gym & dumbbell theme keychain. Printed with high-density PLA material for maximum durability.",
     isFeatured: true,
@@ -35,8 +47,8 @@ export const INITIAL_PRODUCTS = [
     printTime_en: "1.5 Hours",
     dimensions: "3 x 3 x 4 cm",
     weightGrams: 25,
-    image: "/products/Keycap Cliker Nama3.webp",
-    images: ["/products/Keycap Cliker Nama3.webp", "/products/Keycap Cliker Nama.png", "/products/Keycap Cliker Nama2.jpeg"],
+    image: "/products/Keycap_Cliker_Nama3.webp",
+    images: ["/products/Keycap_Cliker_Nama3.webp", "/products/Keycap_Cliker_Nama.png", "/products/Keycap_Cliker_Nama2.jpeg"],
     description_id: "Mainan mechanical switch keycap clicker custom nama. Suara clicky yang memuaskan sebagai mainan pereda stress (fidget toy) di meja kerja.",
     description_en: "Mechanical switch keycap clicker with personalized 3D printed name. Satisfying clicky feedback for desk stress relief.",
     isFeatured: true,
@@ -57,8 +69,8 @@ export const INITIAL_PRODUCTS = [
     printTime_en: "2.5 Hours",
     dimensions: "12 x 3 x 2 cm",
     weightGrams: 35,
-    image: "/products/Ganci Naga.webp",
-    images: ["/products/Ganci Naga.webp", "/products/Ganci Gurita.webp", "/products/Ganci 25 Animal.webp", "/products/Ganci Nama.webp"],
+    image: "/products/Ganci_Naga.webp",
+    images: ["/products/Ganci_Naga.webp", "/products/Ganci_Gurita.webp", "/products/Ganci_25_Animal.webp", "/products/Ganci_Nama.webp"],
     description_id: "Gantungan kunci naga & gurita 3D dengan engsel fleksibel bergerak (print-in-place articulated joint). Unik, fleksibel, dan estetik.",
     description_en: "3D printed articulated dragon & octopus keychain with moving joints. Flexible, durable, and highly unique.",
     isFeatured: true,
@@ -79,8 +91,8 @@ export const INITIAL_PRODUCTS = [
     printTime_en: "2 Hours",
     dimensions: "5 x 5 x 4 cm",
     weightGrams: 40,
-    image: "/products/Dumpling Kliker.webp",
-    images: ["/products/Dumpling Kliker.webp", "/products/Dumpling Kliker1.png", "/products/Dumpling Kliker2.png"],
+    image: "/products/Dumpling_Kliker.webp",
+    images: ["/products/Dumpling_Kliker.webp", "/products/Dumpling_Kliker1.png", "/products/Dumpling_Kliker2.png"],
     description_id: "Mainan fidget clicker bentuk dumpling siomay imut dengan mekanisme pencetan mekanis yang memuaskan.",
     description_en: "Cute dumpling shaped fidget clicker toy with satisfying tactile mechanical feedback.",
     isFeatured: false,
@@ -101,8 +113,8 @@ export const INITIAL_PRODUCTS = [
     printTime_en: "14 Hours",
     dimensions: "14 x 14 x 18 cm",
     weightGrams: 220,
-    image: "/products/Lampu Tidur Bulan.webp",
-    images: ["/products/Lampu Tidur Bulan.webp", "/products/Lampu Tidur Bulan1.webp", "/products/Lampu Tidur Bulan2.webp", "/products/Lampu Tidur Bulan3.webp", "/products/Lampu Tidur Bulan Size.webp"],
+    image: "/products/Lampu_Tidur_Bulan.webp",
+    images: ["/products/Lampu_Tidur_Bulan.webp", "/products/Lampu_Tidur_Bulan1.webp", "/products/Lampu_Tidur_Bulan2.webp", "/products/Lampu_Tidur_Bulan3.webp", "/products/Lampu_Tidur_Bulan_Size.webp"],
     description_id: "Lampu tidur hias relief permukaan bulan 3D (Lithophane Moon Lamp) dengan pendaran cahaya LED hangat yang estetik untuk kamar tidur.",
     description_en: "Custom 3D printed lunar surface lithophane night lamp. Emits warm ambient LED glow perfect for bedroom decor.",
     isFeatured: true,
@@ -123,8 +135,8 @@ export const INITIAL_PRODUCTS = [
     printTime_en: "10 Hours",
     dimensions: "12 x 12 x 22 cm",
     weightGrams: 180,
-    image: "/products/Lampu Tidur Spiral.webp",
-    images: ["/products/Lampu Tidur Spiral.webp", "/products/Lampu Tidur Tabung.webp"],
+    image: "/products/Lampu_Tidur_Spiral.webp",
+    images: ["/products/Lampu_Tidur_Spiral.webp", "/products/Lampu_Tidur_Tabung.webp"],
     description_id: "Lampu meja hias berpola geometris spiral modern cetak 3D. Menghasilkan efek pantulan bayangan unik dan hangat.",
     description_en: "Modern 3D printed geometric spiral table lamp. Creates beautiful ambient shadow patterns.",
     isFeatured: false,
@@ -145,8 +157,8 @@ export const INITIAL_PRODUCTS = [
     printTime_en: "6 Hours",
     dimensions: "16 x 14 x 3 cm",
     weightGrams: 120,
-    image: "/products/Hexagonal bingkai Medal.webp",
-    images: ["/products/Hexagonal bingkai Medal.webp", "/products/Hexagonal Bingkai Hyrox.webp", "/products/Hexagonal bingkai Medal1.webp", "/products/Hexagonal bingkai Medal2.webp", "/products/Hexagonal bingkai Medal3.webp", "/products/Hexagonal bingkai Medal4.webp", "/products/Hexagonal Bingkai Medal5.webp", "/products/Frame Medal.webp"],
+    image: "/products/Hexagonal_bingkai_Medal.webp",
+    images: ["/products/Hexagonal_bingkai_Medal.webp", "/products/Hexagonal_Bingkai_Hyrox.webp", "/products/Hexagonal_bingkai_Medal1.webp", "/products/Hexagonal_bingkai_Medal2.webp", "/products/Hexagonal_bingkai_Medal3.webp", "/products/Hexagonal_bingkai_Medal4.webp", "/products/Hexagonal_Bingkai_Medal5.webp", "/products/Frame_Medal.webp"],
     description_id: "Bingkai display gantungan medali lari, marathon, Hyrox, dan foto berbahan 3D printing modular yang bisa disambung-sambung secara estetik di dinding.",
     description_en: "Modular 3D printed hexagonal frame for running, marathon, and Hyrox medals. Easily linkable for custom wall displays.",
     isFeatured: true,
@@ -167,8 +179,8 @@ export const INITIAL_PRODUCTS = [
     printTime_en: "4 Hours",
     dimensions: "15 x 13 x 2 cm",
     weightGrams: 90,
-    image: "/products/Hiasan Dinding Hexagonal Modular.webp",
-    images: ["/products/Hiasan Dinding Hexagonal Modular.webp"],
+    image: "/products/Hiasan_Dinding_Hexagonal_Modular.webp",
+    images: ["/products/Hiasan_Dinding_Hexagonal_Modular.webp"],
     description_id: "Dekorasi dinding estetik susun honeycomb hexagonal 3D untuk menghias ruangan kamar, kantor, atau studio.",
     description_en: "Esthetic 3D printed honeycomb hexagonal wall decor panels for room and office interior decoration.",
     isFeatured: false,
@@ -189,8 +201,8 @@ export const INITIAL_PRODUCTS = [
     printTime_en: "3.5 Hours",
     dimensions: "10 x 10 x 12 cm",
     weightGrams: 110,
-    image: "/products/Kaktus Stand.webp",
-    images: ["/products/Kaktus Stand.webp", "/products/Kaktus Stand2.webp"],
+    image: "/products/Kaktus_Stand.webp",
+    images: ["/products/Kaktus_Stand.webp", "/products/Kaktus_Stand2.webp"],
     description_id: "Pot tanaman succulent / kaktus mini meja cetak 3D dengan desain lubang drainase presisi dan dudukan estetik.",
     description_en: "Minimalist 3D printed succulent planter pot with precision drainage and desk stand.",
     isFeatured: false,
@@ -211,8 +223,8 @@ export const INITIAL_PRODUCTS = [
     printTime_en: "8 Hours",
     dimensions: "75 x 5 x 5 cm (Extended)",
     weightGrams: 190,
-    image: "/products/Mainan Katana1.webp",
-    images: ["/products/Mainan Katana1.webp", "/products/Mainan Katana2.webp", "/products/Mainan Katana3.webp"],
+    image: "/products/Mainan_Katana1.webp",
+    images: ["/products/Mainan_Katana1.webp", "/products/Mainan_Katana2.webp", "/products/Mainan_Katana3.webp"],
     description_id: "Mainan pedang katana 3D printing yang bisa memanjang dan memendek secara mulus (Collapsible Telescopic Sword).",
     description_en: "3D printed collapsible telescopic katana sword that smoothly extends and retracts.",
     isFeatured: true,
@@ -255,8 +267,8 @@ export const INITIAL_PRODUCTS = [
     printTime_en: "7 Hours",
     dimensions: "30 x 10 x 4 cm",
     weightGrams: 210,
-    image: "/products/Rak Medali.webp",
-    images: ["/products/Rak Medali.webp", "/products/Rak Medali2.webp", "/products/Rak Medali3.webp", "/products/Rak Medali4.webp"],
+    image: "/products/Rak_Medali.webp",
+    images: ["/products/Rak_Medali.webp", "/products/Rak_Medali2.webp", "/products/Rak_Medali3.webp", "/products/Rak_Medali4.webp"],
     description_id: "Gantungan rak display medali piala kejuaraan dinding berbahan PETG kokoh tahan beban berat.",
     description_en: "Heavy-duty 3D printed PETG wall medal hanger rack for sports and championship medals.",
     isFeatured: false,
@@ -277,8 +289,8 @@ export const INITIAL_PRODUCTS = [
     printTime_en: "11 Hours",
     dimensions: "25 x 15 x 8 cm",
     weightGrams: 280,
-    image: "/products/Rak Sepatu dan rak dinding.webp",
-    images: ["/products/Rak Sepatu dan rak dinding.webp", "/products/Rak Sepatu dan rak dinding2.webp"],
+    image: "/products/Rak_Sepatu_dan_rak_dinding.webp",
+    images: ["/products/Rak_Sepatu_dan_rak_dinding.webp", "/products/Rak_Sepatu_dan_rak_dinding2.webp"],
     description_id: "Bracket gantungan rak dinding & floating shoe rack hemat tempat berbahan PETG industri ekstra kuat.",
     description_en: "Space-saving 3D printed modular wall shoe & shelf bracket made of high-strength PETG.",
     isFeatured: false,
@@ -327,7 +339,7 @@ export const MATERIALS = [
   "PETG"
 ];
 
-// Robust helper to get localized product properties with automatic fallbacks
+// Robust helper to get localized product properties with automatic fallbacks & base URL resolution
 export const getLocalizedProduct = (product, lang = 'id') => {
   if (!product) return {};
   const isEn = lang === 'en';
@@ -353,10 +365,12 @@ export const getLocalizedProduct = (product, lang = 'id') => {
   let rawDesc = isEn ? (product.description_en || product.description_id || product.description || '') : (product.description_id || product.description_en || product.description || '');
   let description = String(rawDesc || '');
 
-  // Safe fallback for images
-  const images = Array.isArray(product.images) && product.images.length > 0 
+  // Safe fallback for images with dynamic base URL resolution
+  const rawImages = Array.isArray(product.images) && product.images.length > 0 
     ? product.images 
     : [product.image || 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=600&auto=format&fit=crop&q=80'];
+
+  const images = rawImages.map(img => getAssetUrl(img));
 
   return {
     ...product,
@@ -409,7 +423,7 @@ export const formatPriceDisplay = (priceVal, lang = 'id') => {
   return str;
 };
 
-// Robust helper to extract clean numeric price (handles integers, formatted strings like "Rp 35.000", and ranges like "25000-50000")
+// Robust helper to extract clean numeric price
 export const parseNumericPrice = (priceVal) => {
   if (typeof priceVal === 'number') return isNaN(priceVal) ? 0 : priceVal;
   if (!priceVal) return 0;

@@ -1,10 +1,11 @@
 import React from 'react';
 import { X, Download } from 'lucide-react';
+import { getAssetUrl } from '../data/initialProducts';
 
 export default function LogoModal({ isOpen, onClose, theme = 'light' }) {
   if (!isOpen) return null;
 
-  const logoSrc = theme === 'dark' ? '/Logo-dark.png' : '/Logo.png';
+  const logoSrc = getAssetUrl(theme === 'dark' ? '/Logo-dark.png' : '/Logo.png');
   const logoFileName = theme === 'dark' ? 'Equa3D_Logo_Dark.png' : 'Equa3D_Logo.png';
 
   return (

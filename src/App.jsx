@@ -55,17 +55,27 @@ export default function App() {
   // 3. Products State (Persistent with automatic initial sync)
   const [products, setProducts] = useState(() => {
     const saved = localStorage.getItem('forge3d_products');
+    const initialMap = new Map(INITIAL_PRODUCTS.map(p => [p.id, p]));
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          // Merge any new products from INITIAL_PRODUCTS that are not in localStorage
-          const savedIds = new Set(parsed.map(p => p.id));
-          const missingInSaved = INITIAL_PRODUCTS.filter(p => !savedIds.has(p.id));
-          if (missingInSaved.length > 0) {
-            return [...parsed, ...missingInSaved];
-          }
-          return parsed;
+          // Always replace default products (prod-001 to prod-014) with latest INITIAL_PRODUCTS definitions
+          const updated = parsed.map(p => {
+            if (initialMap.has(p.id)) {
+              return initialMap.get(p.id);
+            }
+            return p;
+          });
+
+          // Add any missing default products
+          const currentIds = new Set(updated.map(p => p.id));
+          INITIAL_PRODUCTS.forEach(p => {
+            if (!currentIds.has(p.id)) {
+              updated.push(p);
+            }
+          });
+          return updated;
         }
       } catch (err) {
         console.error("Failed to parse saved products", err);
