@@ -1,9 +1,37 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { MessageSquare } from 'lucide-react';
 import { TRANSLATIONS } from '../data/translations';
 
 export default function FloatingWhatsApp({ lang = 'id' }) {
   const t = TRANSLATIONS[lang] || TRANSLATIONS.id;
+  const [bottomOffset, setBottomOffset] = useState('24px');
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const footer = document.querySelector('footer');
+      if (!footer) return;
+
+      const footerRect = footer.getBoundingClientRect();
+      const windowHeight = window.innerHeight;
+
+      // If top of footer is visible in viewport
+      if (footerRect.top < windowHeight) {
+        const overlap = windowHeight - footerRect.top;
+        setBottomOffset(`${overlap + 24}px`);
+      } else {
+        setBottomOffset('24px');
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('resize', handleScroll, { passive: true });
+    handleScroll();
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
+    };
+  }, []);
 
   const defaultWaMessage = encodeURIComponent(
     lang === 'en'
@@ -18,7 +46,7 @@ export default function FloatingWhatsApp({ lang = 'id' }) {
       rel="noopener noreferrer"
       style={{
         position: 'fixed',
-        bottom: '24px',
+        bottom: bottomOffset,
         right: '24px',
         zIndex: 9999,
         background: 'linear-gradient(135deg, #25D366 0%, #128C7E 100%)',
@@ -32,7 +60,7 @@ export default function FloatingWhatsApp({ lang = 'id' }) {
         textDecoration: 'none',
         fontWeight: 700,
         fontSize: '0.9rem',
-        transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+        transition: 'bottom 0.15s ease-out, transform 0.3s ease, box-shadow 0.3s ease',
         cursor: 'pointer'
       }}
       onMouseEnter={(e) => {
