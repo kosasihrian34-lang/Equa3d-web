@@ -76,24 +76,21 @@ export default function CatalogSection({
         alignItems: 'center',
         justifyContent: 'space-between',
         flexWrap: 'wrap',
-        gap: '16px',
-        marginBottom: '24px'
+        gap: '12px',
+        marginBottom: '20px'
       }}>
         <div>
-          <h1 style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-primary)' }}>
-            {t.catalogTitle}
-          </h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '4px' }}>
-            {t.catalogSubtitle}
-          </p>
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-primary)', opacity: 0.9 }}>
+            {lang === 'en' ? 'Displaying 3D Products' : 'Menampilkan Produk 3D'}
+          </h2>
         </div>
 
-        {/* View Mode Switcher */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+        {/* View Mode Switcher (Icons Only - Subtle & Minimalist) */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <div style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '2px',
+            gap: '3px',
             background: 'var(--bg-subtle)',
             padding: '3px',
             borderRadius: '8px',
@@ -103,48 +100,44 @@ export default function CatalogSection({
               type="button"
               onClick={() => handleSetViewMode('grid-2')}
               style={{
-                padding: '6px 10px',
+                width: '32px',
+                height: '32px',
                 borderRadius: '6px',
                 border: 'none',
                 background: viewMode === 'grid-2' ? 'var(--bg-card)' : 'transparent',
                 color: viewMode === 'grid-2' ? 'var(--primary-blue)' : 'var(--text-secondary)',
                 cursor: 'pointer',
-                fontWeight: 700,
-                fontSize: '0.78rem',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '4px',
+                justifyContent: 'center',
                 boxShadow: viewMode === 'grid-2' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
                 transition: 'all 0.15s ease'
               }}
-              title="Tampilan Ringkas / Zoom Out (2 Kolom)"
+              title={lang === 'en' ? 'Compact Grid View (2 Columns)' : 'Tampilan Ringkas / Zoom Out (2 Kolom)'}
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="8" height="18" rx="1.5"/><rect x="13" y="3" width="8" height="18" rx="1.5"/></svg>
-              <span>Ringkas (2)</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="8" height="18" rx="1.5"/><rect x="13" y="3" width="8" height="18" rx="1.5"/></svg>
             </button>
 
             <button
               type="button"
               onClick={() => handleSetViewMode('grid-1')}
               style={{
-                padding: '6px 10px',
+                width: '32px',
+                height: '32px',
                 borderRadius: '6px',
                 border: 'none',
                 background: viewMode === 'grid-1' ? 'var(--bg-card)' : 'transparent',
                 color: viewMode === 'grid-1' ? 'var(--primary-blue)' : 'var(--text-secondary)',
                 cursor: 'pointer',
-                fontWeight: 700,
-                fontSize: '0.78rem',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '4px',
+                justifyContent: 'center',
                 boxShadow: viewMode === 'grid-1' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
                 transition: 'all 0.15s ease'
               }}
-              title="Tampilan Besar (1 Kolom)"
+              title={lang === 'en' ? 'Large Grid View (1 Column)' : 'Tampilan Besar (1 Kolom)'}
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
-              <span>Besar (1)</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
             </button>
           </div>
 
