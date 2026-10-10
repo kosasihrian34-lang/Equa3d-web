@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { X, Layers, Clock, Box, ShieldCheck, MessageSquare, ChevronLeft, ChevronRight, Video, ZoomIn, Heart, ShoppingBag, Share2 } from 'lucide-react';
 import { TRANSLATIONS } from '../data/translations';
-import { getLocalizedProduct, formatPriceDisplay } from '../data/initialProducts';
+import { getLocalizedProduct, formatPriceDisplay, getAssetUrl } from '../data/initialProducts';
 
 export default function ProductDetailModal({ 
   product, 
@@ -218,7 +218,7 @@ export default function ProductDetailModal({
             >
               {isVideoUrl(imageList[activeImgIdx] || imageList[0]) ? (
                 <video
-                  src={imageList[activeImgIdx] || imageList[0]}
+                  src={getAssetUrl(imageList[activeImgIdx] || imageList[0])}
                   controls
                   autoPlay
                   loop
@@ -233,7 +233,7 @@ export default function ProductDetailModal({
                 />
               ) : (
                 <img 
-                  src={imageList[activeImgIdx] || imageList[0]} 
+                  src={getAssetUrl(imageList[activeImgIdx] || imageList[0])} 
                   alt={`${localizedProd.title} - Media ${activeImgIdx + 1}`}
                   style={{
                     maxWidth: '100%',
@@ -380,10 +380,10 @@ export default function ProductDetailModal({
                       }}
                     >
                       {isVid ? (
-                        <video src={mediaUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} muted preload="metadata" />
+                        <video src={getAssetUrl(mediaUrl)} style={{ width: '100%', height: '100%', objectFit: 'cover' }} muted preload="metadata" />
                       ) : (
                         <img 
-                          src={mediaUrl} 
+                          src={getAssetUrl(mediaUrl)} 
                           alt={`Thumbnail ${idx + 1}`} 
                           style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
                         />
@@ -664,7 +664,7 @@ export default function ProductDetailModal({
           >
             {isVideoUrl(imageList[activeImgIdx] || imageList[0]) ? (
               <video
-                src={imageList[activeImgIdx] || imageList[0]}
+                src={getAssetUrl(imageList[activeImgIdx] || imageList[0])}
                 controls
                 autoPlay
                 loop
@@ -678,7 +678,7 @@ export default function ProductDetailModal({
               />
             ) : (
               <img
-                src={imageList[activeImgIdx] || imageList[0]}
+                src={getAssetUrl(imageList[activeImgIdx] || imageList[0])}
                 alt={`${localizedProd.title} Fullscreen`}
                 style={{
                   maxWidth: '92vw',

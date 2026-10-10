@@ -94,7 +94,7 @@ export default function ProductCard({
       >
         {isVideoUrl(localizedProd.image) ? (
           <video 
-            src={localizedProd.image} 
+            src={getAssetUrl(localizedProd.image)} 
             muted 
             loop 
             autoPlay 
@@ -104,7 +104,7 @@ export default function ProductCard({
           />
         ) : (
           <img 
-            src={localizedProd.image} 
+            src={getAssetUrl(localizedProd.image)} 
             alt={localizedProd.title} 
             className="product-image"
             onError={(e) => {
