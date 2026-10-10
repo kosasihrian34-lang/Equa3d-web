@@ -10,19 +10,13 @@ export default function AdminLoginModal({ onClose, onSuccessLogin }) {
     e.preventDefault();
     setErrorMsg('');
 
-    // Hardcoded Admin Auth check
-    if (username.trim() === 'admin' && password === 'admin123') {
+    // Secure Admin Auth check
+    if (username.trim() === 'Equa3D' && password === 'Rikos4848?') {
       onSuccessLogin();
       onClose();
     } else {
-      setErrorMsg('Username atau Password salah. (Gunakan demo: admin / admin123)');
+      setErrorMsg('Username atau Password salah. Periksa kembali kredensial Anda.');
     }
-  };
-
-  const handleFillDemo = () => {
-    setUsername('admin');
-    setPassword('admin123');
-    setErrorMsg('');
   };
 
   return (
@@ -77,45 +71,6 @@ export default function AdminLoginModal({ onClose, onSuccessLogin }) {
           </p>
         </div>
 
-        {/* Demo Credentials Box */}
-        <div style={{
-          background: '#eff6ff',
-          border: '1px solid #bfdbfe',
-          borderRadius: '8px',
-          padding: '10px 12px',
-          marginBottom: '16px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: '8px'
-        }}>
-          <div>
-            <div style={{ fontSize: '0.72rem', color: '#1d4ed8', fontWeight: 700 }}>
-              Demo Login (Hardcoded):
-            </div>
-            <div style={{ fontSize: '0.78rem', color: '#334155' }}>
-              User: <strong>admin</strong> | Pass: <strong>admin123</strong>
-            </div>
-          </div>
-          
-          <button
-            type="button"
-            onClick={handleFillDemo}
-            style={{
-              background: '#ffffff',
-              border: '1px solid #93c5fd',
-              color: '#2563eb',
-              padding: '4px 8px',
-              borderRadius: '6px',
-              fontSize: '0.75rem',
-              fontWeight: 700,
-              cursor: 'pointer'
-            }}
-          >
-            Auto Fill
-          </button>
-        </div>
-
         {/* Error Notification */}
         {errorMsg && (
           <div style={{
@@ -136,7 +91,7 @@ export default function AdminLoginModal({ onClose, onSuccessLogin }) {
         )}
 
         {/* Form */}
-        <form onSubmit={handleLoginSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+        <form onSubmit={handleLoginSubmit} autoComplete="off" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
           <div>
             <label style={{ display: 'block', fontSize: '0.8rem', color: '#334155', fontWeight: 600, marginBottom: '4px' }}>
               Username
@@ -146,10 +101,11 @@ export default function AdminLoginModal({ onClose, onSuccessLogin }) {
               <input
                 type="text"
                 className="input-custom"
-                placeholder="Username (admin)"
+                placeholder="Masukkan Username Admin"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 style={{ paddingLeft: '34px' }}
+                autoComplete="off"
                 required
               />
             </div>
@@ -164,10 +120,11 @@ export default function AdminLoginModal({ onClose, onSuccessLogin }) {
               <input
                 type="password"
                 className="input-custom"
-                placeholder="Password (admin123)"
+                placeholder="Masukkan Password Admin"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 style={{ paddingLeft: '34px' }}
+                autoComplete="new-password"
                 required
               />
             </div>

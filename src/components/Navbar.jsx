@@ -113,8 +113,9 @@ export default function Navbar({
 
             {/* TikTok */}
             <a
-              href="#"
-              onClick={(e) => { e.preventDefault(); alert("TikTok: @equa3d.id (Coming Soon)"); }}
+              href="https://www.tiktok.com/@equa3dprinting.id?_r=1&_t=ZS-9ARQYWmCbkk"
+              target="_blank"
+              rel="noopener noreferrer"
               style={{
                 color: '#0f172a',
                 background: '#f1f5f9',
@@ -127,7 +128,7 @@ export default function Navbar({
                 transition: 'all 0.2s ease',
                 textDecoration: 'none'
               }}
-              title="TikTok: @equa3d.id"
+              title="TikTok: @equa3dprinting.id"
             >
               <TikTokIcon size={17} color="#0f172a" />
             </a>

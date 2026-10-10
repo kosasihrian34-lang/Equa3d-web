@@ -86,8 +86,9 @@ export default function Footer({ isAdminLoggedIn, onOpenAdminModal, onLogoutAdmi
             </a>
 
             <a
-              href="#"
-              onClick={(e) => { e.preventDefault(); alert("TikTok: @equa3d.id (Coming Soon)"); }}
+              href="https://www.tiktok.com/@equa3dprinting.id?_r=1&_t=ZS-9ARQYWmCbkk"
+              target="_blank"
+              rel="noopener noreferrer"
               style={{
                 color: '#0f172a',
                 display: 'flex',
