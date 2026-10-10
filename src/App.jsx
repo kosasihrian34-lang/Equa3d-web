@@ -17,6 +17,12 @@ import { ShoppingBag } from 'lucide-react';
 
 import { INITIAL_PRODUCTS, parseNumericPrice, formatPriceDisplay } from './data/initialProducts';
 import { TRANSLATIONS } from './data/translations';
+import { 
+  subscribeToCloudProducts, 
+  saveCloudProduct, 
+  deleteCloudProduct, 
+  seedInitialProductsIfEmpty 
+} from './firebase';
 
 export default function App() {
   // Theme State ('light' | 'dark')
@@ -52,14 +58,8 @@ export default function App() {
     return localStorage.getItem('forge3d_admin_auth') === 'true';
   });
 
-  // 3. Products State (Persistent with full user edit retention)
+  // 3. Products State (Real-Time Cloud Firestore Sync with local fallback)
   const [products, setProducts] = useState(() => {
-    // Purge obsolete legacy keys
-    localStorage.removeItem('forge3d_products');
-    localStorage.removeItem('forge3d_products_v2');
-    localStorage.removeItem('forge3d_products_v3');
-    localStorage.removeItem('forge3d_products_v4');
-
     const saved = localStorage.getItem('forge3d_products_v5');
     if (saved) {
       try {
@@ -74,12 +74,37 @@ export default function App() {
     return INITIAL_PRODUCTS;
   });
 
-  // Save products to localStorage safely without throwing errors
+  // Firebase Real-Time Synchronization Effect
+  useEffect(() => {
+    // 1. Seed initial products to cloud if Firestore collection is empty
+    seedInitialProductsIfEmpty(INITIAL_PRODUCTS);
+
+    // 2. Subscribe to real-time changes in Firestore (updates ALL devices instantly)
+    const unsubscribe = subscribeToCloudProducts(
+      (cloudProducts) => {
+        if (Array.isArray(cloudProducts) && cloudProducts.length > 0) {
+          setProducts(cloudProducts);
+          try {
+            localStorage.setItem('forge3d_products_v5', JSON.stringify(cloudProducts));
+          } catch {
+            // Ignore quota errors
+          }
+        }
+      },
+      (err) => {
+        console.warn("Firestore cloud sync notice:", err);
+      }
+    );
+
+    return () => unsubscribe();
+  }, []);
+
+  // Save products to localStorage safely
   useEffect(() => {
     try {
       localStorage.setItem('forge3d_products_v5', JSON.stringify(products));
     } catch (err) {
-      console.warn("localStorage quota limit reached, products kept safely in active memory:", err);
+      console.warn("localStorage quota limit reached:", err);
     }
   }, [products]);
 
@@ -257,8 +282,9 @@ export default function App() {
     setUserTab('catalog');
   };
 
-  // Product CRUD Handlers
-  const handleSaveProduct = (productData) => {
+  // Product CRUD Handlers with Firebase Cloud Integration
+  const handleSaveProduct = async (productData) => {
+    // 1. Optimistic Local Update
     setProducts((prevProducts) => {
       const existsIndex = prevProducts.findIndex((p) => p.id === productData.id);
       if (existsIndex >= 0) {
@@ -269,6 +295,17 @@ export default function App() {
         return [productData, ...prevProducts];
       }
     });
+
+    showToast("Mengunggah produk & foto ke Firebase Cloud Storage... ☁️", "info");
+
+    // 2. Upload photo files to Firebase Storage & save product to Cloud Firestore
+    try {
+      await saveCloudProduct(productData);
+      showToast(`"${productData.title_id || productData.title}" berhasil di-sync ke Cloud Awan! ☁️✨`, "info");
+    } catch (err) {
+      console.error("Cloud save notice:", err);
+      showToast("Produk tersimpan di lokal (Cloud notice: pastikan aturan Firestore/Storage terbuka).", "info");
+    }
   };
 
   const handleRequestDeleteProduct = (productId) => {
@@ -278,10 +315,18 @@ export default function App() {
     }
   };
 
-  const handleConfirmDeleteProduct = () => {
+  const handleConfirmDeleteProduct = async () => {
     if (productToDelete) {
-      setProducts((prev) => prev.filter((p) => p.id !== productToDelete.id));
+      const targetId = productToDelete.id;
+      setProducts((prev) => prev.filter((p) => p.id !== targetId));
       setProductToDelete(null);
+
+      try {
+        await deleteCloudProduct(targetId);
+        showToast("Produk berhasil dihapus dari Cloud Awan! ☁️", "info");
+      } catch (err) {
+        console.error("Cloud delete notice:", err);
+      }
     }
   };
 
