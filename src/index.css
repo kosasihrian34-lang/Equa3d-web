@@ -78,6 +78,21 @@ body {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
 }
 
+[data-theme="dark"] nav {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+[data-theme="dark"] nav button {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] nav button[data-active="true"] {
+  background-color: #0f172a !important;
+  color: #38bdf8 !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3) !important;
+}
+
 [data-theme="dark"] .clean-card,
 [data-theme="dark"] .product-card,
 [data-theme="dark"] .modal-content {
@@ -100,6 +115,7 @@ body {
 [data-theme="dark"] .btn-secondary:hover {
   background-color: #334155 !important;
   border-color: #475569 !important;
+  color: #38bdf8 !important;
 }
 
 [data-theme="dark"] .input-custom {
@@ -109,8 +125,8 @@ body {
 }
 
 [data-theme="dark"] .input-custom:focus {
-  border-color: #3b82f6 !important;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25) !important;
+  border-color: #38bdf8 !important;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25) !important;
 }
 
 [data-theme="dark"] .input-custom::placeholder {
@@ -135,6 +151,12 @@ body {
 [data-theme="dark"] h5,
 [data-theme="dark"] h6 {
   color: #f8fafc !important;
+}
+
+/* Ensure text elements in dark mode don't use dim dark blue */
+[data-theme="dark"] .category-text,
+[data-theme="dark"] .text-accent-blue {
+  color: #38bdf8 !important;
 }
 
 [data-theme="dark"] .badge-filament.badge-pla {

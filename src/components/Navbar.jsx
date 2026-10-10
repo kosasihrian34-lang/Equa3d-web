@@ -136,15 +136,16 @@ export default function Navbar({
 
         {/* User Navigation Tabs (Catalog & Panduan Bahan PLA vs PETG) */}
         {!isAdminLoggedIn && (
-          <nav style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#f1f5f9', padding: '4px', borderRadius: '10px' }}>
+          <nav style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'var(--bg-subtle)', padding: '4px', borderRadius: '10px', border: '1px solid var(--border-light)' }}>
             <button
               onClick={() => setUserTab('catalog')}
+              data-active={userTab === 'catalog'}
               style={{
                 padding: '6px 14px',
                 borderRadius: '7px',
                 border: 'none',
-                background: userTab === 'catalog' ? '#ffffff' : 'transparent',
-                color: userTab === 'catalog' ? '#2563eb' : '#64748b',
+                background: userTab === 'catalog' ? 'var(--bg-card)' : 'transparent',
+                color: userTab === 'catalog' ? 'var(--primary-blue)' : 'var(--text-secondary)',
                 fontWeight: 700,
                 fontSize: '0.84rem',
                 cursor: 'pointer',
@@ -160,12 +161,13 @@ export default function Navbar({
 
             <button
               onClick={() => setUserTab('materials')}
+              data-active={userTab === 'materials'}
               style={{
                 padding: '6px 14px',
                 borderRadius: '7px',
                 border: 'none',
-                background: userTab === 'materials' ? '#ffffff' : 'transparent',
-                color: userTab === 'materials' ? '#2563eb' : '#64748b',
+                background: userTab === 'materials' ? 'var(--bg-card)' : 'transparent',
+                color: userTab === 'materials' ? 'var(--primary-blue)' : 'var(--text-secondary)',
                 fontWeight: 700,
                 fontSize: '0.84rem',
                 cursor: 'pointer',

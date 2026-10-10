@@ -236,13 +236,16 @@ export default function ProductCard({
 
       {/* Card Info */}
       <div style={{ padding: '18px', flex: 1, display: 'flex', flexDirection: 'column' }}>
-        <div style={{ 
-          fontSize: '0.75rem', 
-          color: '#2563eb', 
-          fontWeight: 700, 
-          textTransform: 'uppercase',
-          marginBottom: '4px'
-        }}>
+        <div 
+          className="category-text"
+          style={{ 
+            fontSize: '0.75rem', 
+            color: 'var(--primary-blue)', 
+            fontWeight: 700, 
+            textTransform: 'uppercase',
+            marginBottom: '4px'
+          }}
+        >
           {localizedProd.category}
         </div>
 
