@@ -52,12 +52,21 @@ export default function App() {
     return localStorage.getItem('forge3d_admin_auth') === 'true';
   });
 
-  // 3. Products State (Persistent)
+  // 3. Products State (Persistent with automatic initial sync)
   const [products, setProducts] = useState(() => {
     const saved = localStorage.getItem('forge3d_products');
     if (saved) {
       try {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          // Merge any new products from INITIAL_PRODUCTS that are not in localStorage
+          const savedIds = new Set(parsed.map(p => p.id));
+          const missingInSaved = INITIAL_PRODUCTS.filter(p => !savedIds.has(p.id));
+          if (missingInSaved.length > 0) {
+            return [...parsed, ...missingInSaved];
+          }
+          return parsed;
+        }
       } catch (err) {
         console.error("Failed to parse saved products", err);
       }
