@@ -195,8 +195,11 @@ export default function AdminProductModal({ productToEdit, onClose, onSaveProduc
     });
   };
 
-  const handleSubmit = (e) => {
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSaving(true);
     const colorsArray = formData.colorOptions
       .split(',')
       .map((c) => c.trim())
@@ -218,8 +221,14 @@ export default function AdminProductModal({ productToEdit, onClose, onSaveProduc
       colorOptions: colorsArray.length ? colorsArray : ['Standard Color']
     };
 
-    onSaveProduct(updatedProduct);
-    onClose();
+    try {
+      await onSaveProduct(updatedProduct);
+    } catch (err) {
+      console.error("Save error:", err);
+    } finally {
+      setIsSaving(false);
+      onClose();
+    }
   };
 
   const handleSafeClose = () => {
@@ -776,9 +785,11 @@ export default function AdminProductModal({ productToEdit, onClose, onSaveProduc
             <button
               type="submit"
               className="btn-primary"
+              disabled={isSaving}
+              style={{ opacity: isSaving ? 0.7 : 1, cursor: isSaving ? 'wait' : 'pointer' }}
             >
               <Save size={16} />
-              {isEditing ? 'Simpan Perubahan' : 'Tambah ke Katalog'}
+              {isSaving ? '⏳ Menyimpan ke Cloud...' : (isEditing ? 'Simpan Perubahan' : 'Tambah ke Katalog')}
             </button>
           </div>
         </form>
