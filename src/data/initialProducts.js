@@ -5,7 +5,8 @@ export const getAssetUrl = (path) => {
   if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:')) {
     return path;
   }
-  const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+  const safePath = path.replace(/ /g, '_');
+  const cleanPath = safePath.startsWith('/') ? safePath.slice(1) : safePath;
   const baseUrl = import.meta.env.BASE_URL || '/';
   return baseUrl.endsWith('/') ? `${baseUrl}${cleanPath}` : `${baseUrl}/${cleanPath}`;
 };

@@ -52,9 +52,13 @@ export default function App() {
     return localStorage.getItem('forge3d_admin_auth') === 'true';
   });
 
-  // 3. Products State (Persistent with automatic initial sync)
+  // 3. Products State (Persistent with automatic initial sync & v4 storage key)
   const [products, setProducts] = useState(() => {
-    const saved = localStorage.getItem('forge3d_products');
+    // Purge legacy storage keys if present
+    localStorage.removeItem('forge3d_products');
+    localStorage.removeItem('forge3d_products_v2');
+
+    const saved = localStorage.getItem('forge3d_products_v4');
     const initialMap = new Map(INITIAL_PRODUCTS.map(p => [p.id, p]));
     if (saved) {
       try {
@@ -87,7 +91,7 @@ export default function App() {
   // Save products to localStorage safely without throwing errors
   useEffect(() => {
     try {
-      localStorage.setItem('forge3d_products', JSON.stringify(products));
+      localStorage.setItem('forge3d_products_v4', JSON.stringify(products));
     } catch (err) {
       console.warn("localStorage storage limit reached, products kept safely in active memory:", err);
     }
