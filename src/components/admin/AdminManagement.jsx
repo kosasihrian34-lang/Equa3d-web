@@ -5,10 +5,11 @@ import RevenueBreakdown from './RevenueBreakdown';
 import MultiColorCalculator from './MultiColorCalculator';
 import DailySalesReport from './DailySalesReport';
 import RiskComplexityCalculator from './RiskComplexityCalculator';
+import CatalogPriceCalculator from './CatalogPriceCalculator';
 import { ChevronDown, Shield } from 'lucide-react';
 
 export default function AdminManagement({ catalogProducts = [] }) {
-  const [activeSubModule, setActiveSubModule] = useState('daily-sales-report');
+  const [activeSubModule, setActiveSubModule] = useState('catalog-price-calc');
 
   return (
     <section style={{
@@ -41,7 +42,7 @@ export default function AdminManagement({ catalogProducts = [] }) {
               Fungsi & Manajemen Operasional Percetakan
             </h2>
             <div style={{ fontSize: '0.8rem', color: '#64748b' }}>
-              Pilih menu pencatatan modal, pengeluaran mingguan, proyeksi omset, atau kalkulator matriks risiko.
+              Pilih kalkulator harga jual katalog, pencatatan modal, pengeluaran mingguan, proyeksi omset, atau kalkulator matriks risiko.
             </div>
           </div>
         </div>
@@ -61,6 +62,7 @@ export default function AdminManagement({ catalogProducts = [] }) {
               background: '#f8fafc'
             }}
           >
+            <option value="catalog-price-calc">Kalkulator Harga Jual Katalog</option>
             <option value="daily-sales-report">Laporan Penjualan & Produksi Harian (Spreadsheet Sync)</option>
             <option value="risk-complexity-calc">Kalkulator Matrix & Risiko Print 3D (Smart Pricing)</option>
             <option value="initial-capital">Pencatatan Modal Awal</option>
@@ -73,6 +75,7 @@ export default function AdminManagement({ catalogProducts = [] }) {
       </div>
 
       {/* Render Active Sub-Module */}
+      {activeSubModule === 'catalog-price-calc' && <CatalogPriceCalculator />}
       {activeSubModule === 'daily-sales-report' && <DailySalesReport catalogProducts={catalogProducts} />}
       {activeSubModule === 'risk-complexity-calc' && <RiskComplexityCalculator />}
       {activeSubModule === 'initial-capital' && <InitialCapital />}
