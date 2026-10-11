@@ -113,10 +113,13 @@ export const subscribeToCatalogCalculatorItems = (onUpdate, onError) => {
   const calcRef = collection(db, "catalog_calculator");
   
   return onSnapshot(calcRef, (snapshot) => {
-    const items = snapshot.docs.map(docSnap => ({
-      id: docSnap.id,
-      ...docSnap.data()
-    }));
+    const items = snapshot.docs.map(docSnap => {
+      const data = docSnap.data();
+      return {
+        ...data,
+        id: data.id !== undefined ? data.id : docSnap.id
+      };
+    });
     onUpdate(items);
   }, (err) => {
     console.error("Firestore catalog_calculator listener error:", err);
@@ -126,16 +129,23 @@ export const subscribeToCatalogCalculatorItems = (onUpdate, onError) => {
 
 // Save single item to Firestore catalog_calculator
 export const saveCloudCatalogCalculatorItem = async (item) => {
-  if (!item || !item.id) return;
+  if (!item || item.id === undefined || item.id === null) return;
   const cleanItem = JSON.parse(JSON.stringify(item));
   const docRef = doc(db, "catalog_calculator", String(item.id));
   await setDoc(docRef, { ...cleanItem, updatedAt: new Date().toISOString() }, { merge: true });
   return cleanItem;
 };
 
+// Save multiple items to Firestore catalog_calculator in batch/parallel
+export const saveAllCloudCatalogCalculatorItems = async (itemsList = []) => {
+  if (!Array.isArray(itemsList) || itemsList.length === 0) return;
+  const promises = itemsList.map(item => saveCloudCatalogCalculatorItem(item));
+  await Promise.all(promises);
+};
+
 // Delete item from Firestore catalog_calculator
 export const deleteCloudCatalogCalculatorItem = async (itemId) => {
-  if (!itemId) return;
+  if (itemId === undefined || itemId === null) return;
   const docRef = doc(db, "catalog_calculator", String(itemId));
   await deleteDoc(docRef);
 };
@@ -155,4 +165,5 @@ export const seedCatalogCalculatorIfEmpty = async (initialList = []) => {
     console.warn("Failed to seed catalog calculator:", err);
   }
 };
+
 

@@ -8,6 +8,7 @@ import DeleteConfirmModal from '../DeleteConfirmModal';
 import { 
   subscribeToCatalogCalculatorItems, 
   saveCloudCatalogCalculatorItem, 
+  saveAllCloudCatalogCalculatorItems,
   deleteCloudCatalogCalculatorItem, 
   seedCatalogCalculatorIfEmpty 
 } from '../../firebase';
@@ -98,6 +99,8 @@ export default function CatalogPriceCalculator() {
   });
 
   const [isCloudSyncing, setIsCloudSyncing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [syncStatusMsg, setSyncStatusMsg] = useState('');
 
   // Modal / Form state for Add/Edit item
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -109,30 +112,50 @@ export default function CatalogPriceCalculator() {
   useEffect(() => {
     setIsCloudSyncing(true);
 
-    // First check & seed if Firestore collection is empty
-    const localSaved = localStorage.getItem('equa3d_catalog_calculator_items');
-    let itemsToSeed = INITIAL_ITEMS;
-    if (localSaved) {
-      try {
-        const parsed = JSON.parse(localSaved);
-        if (Array.isArray(parsed) && parsed.length > 0) itemsToSeed = parsed;
-      } catch (e) {}
-    }
-    seedCatalogCalculatorIfEmpty(itemsToSeed);
-
     // Subscribe to Firestore changes in real-time
-    const unsubscribe = subscribeToCatalogCalculatorItems((cloudItems) => {
-      if (Array.isArray(cloudItems) && cloudItems.length > 0) {
-        // Sort items by id or createdAt if available
-        const sorted = [...cloudItems].sort((a, b) => {
-          const numA = Number(a.id) || 0;
-          const numB = Number(b.id) || 0;
-          return numA - numB;
-        });
-        setItems(sorted);
-        localStorage.setItem('equa3d_catalog_calculator_items', JSON.stringify(sorted));
-      }
+    const unsubscribe = subscribeToCatalogCalculatorItems(async (cloudItems) => {
       setIsCloudSyncing(false);
+
+      // Check current browser localStorage
+      const localRaw = localStorage.getItem('equa3d_catalog_calculator_items');
+      let localList = [];
+      if (localRaw) {
+        try { localList = JSON.parse(localRaw); } catch (e) {}
+      }
+
+      if (Array.isArray(cloudItems) && cloudItems.length > 0) {
+        // Find if this browser has items in localStorage that are NOT yet in Cloud Firestore
+        const missingInCloud = localList.filter(locItem => 
+          locItem && locItem.id && !cloudItems.some(cItem => String(cItem.id) === String(locItem.id))
+        );
+
+        if (missingInCloud.length > 0) {
+          console.log("Auto-uploading unsynced local items to Firestore:", missingInCloud);
+          setSyncStatusMsg(`Mengunggah ${missingInCloud.length} barang lokal ke Cloud...`);
+          try {
+            await saveAllCloudCatalogCalculatorItems(missingInCloud);
+            setSyncStatusMsg('Sinkronisasi cloud selesai!');
+            setTimeout(() => setSyncStatusMsg(''), 3000);
+          } catch (e) {
+            console.warn("Auto-upload error:", e);
+          }
+          // Merge local and cloud items without duplicates
+          const mergedMap = new Map();
+          cloudItems.forEach(item => mergedMap.set(String(item.id), item));
+          missingInCloud.forEach(item => mergedMap.set(String(item.id), item));
+          const mergedList = Array.from(mergedMap.values()).sort((a, b) => (Number(a.id) || 0) - (Number(b.id) || 0));
+          setItems(mergedList);
+          localStorage.setItem('equa3d_catalog_calculator_items', JSON.stringify(mergedList));
+        } else {
+          const sorted = [...cloudItems].sort((a, b) => (Number(a.id) || 0) - (Number(b.id) || 0));
+          setItems(sorted);
+          localStorage.setItem('equa3d_catalog_calculator_items', JSON.stringify(sorted));
+        }
+      } else {
+        // Firestore collection is completely empty! Seed from local or default
+        const listToSeed = localList.length > 0 ? localList : INITIAL_ITEMS;
+        seedCatalogCalculatorIfEmpty(listToSeed);
+      }
     }, (err) => {
       console.warn("Firestore listener fallback to localStorage:", err);
       setIsCloudSyncing(false);
@@ -142,6 +165,23 @@ export default function CatalogPriceCalculator() {
       if (unsubscribe) unsubscribe();
     };
   }, []);
+
+  // Manual trigger to force upload all current items to Cloud Firestore
+  const handleManualSyncToCloud = async () => {
+    setIsCloudSyncing(true);
+    setSyncStatusMsg('Sedang menyinkronkan...');
+    try {
+      await saveAllCloudCatalogCalculatorItems(items);
+      setSyncStatusMsg(`Tersinkron ${items.length} barang`);
+      alert(`✅ Berhasil!\n\nSebanyak ${items.length} data barang kalkulator telah tersimpan di Cloud Firestore.\nData sekarang otomatis tampil di HP dan browser lain tanpa reset.`);
+      setTimeout(() => setSyncStatusMsg(''), 4000);
+    } catch (err) {
+      console.error("Manual sync error:", err);
+      alert("Gagal sinkron ke Cloud: " + (err.message || "Periksa koneksi internet"));
+    } finally {
+      setIsCloudSyncing(false);
+    }
+  };
 
   // Form state
   const [formData, setFormData] = useState({
@@ -332,6 +372,7 @@ export default function CatalogPriceCalculator() {
       return;
     }
 
+    setIsSaving(true);
     const sellingPrice = parseFloat(formData.sellingPrice) || 0;
     const parts = formData.parts.map((p, idx) => ({
       id: p.id || `p-${Date.now()}-${idx}`,
@@ -342,36 +383,49 @@ export default function CatalogPriceCalculator() {
       otherCost: parseFloat(p.otherCost) || 0
     }));
 
-    if (editingItem) {
-      const updatedItem = {
-        ...editingItem,
-        name: formData.name,
-        category: parts.length > 1 ? 'MultiPart' : 'Single',
-        photo: formData.photo,
-        sellingPrice,
-        parts
-      };
-      setItems(items.map(it => it.id === editingItem.id ? updatedItem : it));
-      // Save to Cloud Firestore
-      saveCloudCatalogCalculatorItem(updatedItem).catch(err => console.warn("Cloud save error:", err));
-    } else {
-      const newItem = {
-        id: Date.now(),
-        name: formData.name,
-        category: parts.length > 1 ? 'MultiPart' : 'Single',
-        photo: formData.photo,
-        sellingPrice,
-        parts
-      };
-      setItems([newItem, ...items]);
-      if (parts.length > 1) {
-        setExpandedItems(prev => ({ ...prev, [newItem.id]: true }));
-      }
-      // Save to Cloud Firestore
-      saveCloudCatalogCalculatorItem(newItem).catch(err => console.warn("Cloud save error:", err));
-    }
+    try {
+      if (editingItem) {
+        const updatedItem = {
+          ...editingItem,
+          name: formData.name,
+          category: parts.length > 1 ? 'MultiPart' : 'Single',
+          photo: formData.photo,
+          sellingPrice,
+          parts
+        };
+        const updatedList = items.map(it => it.id === editingItem.id ? updatedItem : it);
+        setItems(updatedList);
+        localStorage.setItem('equa3d_catalog_calculator_items', JSON.stringify(updatedList));
+        
+        // Save to Cloud Firestore
+        await saveCloudCatalogCalculatorItem(updatedItem);
+      } else {
+        const newItem = {
+          id: Date.now(),
+          name: formData.name,
+          category: parts.length > 1 ? 'MultiPart' : 'Single',
+          photo: formData.photo,
+          sellingPrice,
+          parts
+        };
+        const updatedList = [...items, newItem];
+        setItems(updatedList);
+        localStorage.setItem('equa3d_catalog_calculator_items', JSON.stringify(updatedList));
+        if (parts.length > 1) {
+          setExpandedItems(prev => ({ ...prev, [newItem.id]: true }));
+        }
 
-    setIsModalOpen(false);
+        // Save to Cloud Firestore
+        await saveCloudCatalogCalculatorItem(newItem);
+      }
+      setIsModalOpen(false);
+    } catch (err) {
+      console.error("Gagal menyimpan ke Cloud Firestore:", err);
+      alert("Catatan: Terjadi kendala saat menyimpan ke Cloud Firestore (" + (err.message || "koneksi offline") + "). Data tetap tersimpan di browser ini.");
+      setIsModalOpen(false);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   // Toggle expand parts
@@ -386,10 +440,15 @@ export default function CatalogPriceCalculator() {
   const handleConfirmDelete = async () => {
     if (itemToDelete) {
       const delId = itemToDelete.id;
-      setItems(items.filter(it => it.id !== delId));
+      const filtered = items.filter(it => it.id !== delId);
+      setItems(filtered);
+      localStorage.setItem('equa3d_catalog_calculator_items', JSON.stringify(filtered));
       setItemToDelete(null);
-      // Delete from Cloud Firestore
-      deleteCloudCatalogCalculatorItem(delId).catch(err => console.warn("Cloud delete error:", err));
+      try {
+        await deleteCloudCatalogCalculatorItem(delId);
+      } catch (err) {
+        console.warn("Gagal hapus dari Cloud:", err);
+      }
     }
   };
 
@@ -493,21 +552,49 @@ export default function CatalogPriceCalculator() {
           <p style={{ fontSize: '0.85rem', color: '#64748b', marginTop: '4px' }}>
             Perhitungan modal per gram, biaya lain/komponen, total modal assembly barang ber-part (seperti Lampu Bulan), serta margin laba bersih.
           </p>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '6px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginTop: '6px' }}>
             <span style={{
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '5px',
+              gap: '6px',
               fontSize: '0.74rem',
               fontWeight: 700,
               background: '#ecfdf5',
               color: '#047857',
               border: '1px solid #a7f3d0',
-              padding: '2px 8px',
+              padding: '3px 10px',
               borderRadius: '6px'
             }}>
-              <Cloud size={13} /> Cloud Firestore Terhubung (Real-Time Sinkron Semua Perangkat)
+              <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#10b981', display: 'inline-block' }}></span>
+              <Cloud size={13} /> Cloud Firestore Terhubung ({items.length} Barang)
             </span>
+
+            <button
+              type="button"
+              onClick={handleManualSyncToCloud}
+              disabled={isCloudSyncing}
+              style={{
+                background: '#eff6ff',
+                border: '1px solid #bfdbfe',
+                color: '#1d4ed8',
+                fontSize: '0.74rem',
+                fontWeight: 700,
+                padding: '3px 10px',
+                borderRadius: '6px',
+                cursor: isCloudSyncing ? 'wait' : 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '5px'
+              }}
+              title="Upload semua data saat ini ke Cloud Firestore agar HP & browser lain ter-update"
+            >
+              <RefreshCw size={12} style={{ animation: isCloudSyncing ? 'spin 1s linear infinite' : 'none' }} />
+              {isCloudSyncing ? 'Menyinkronkan...' : 'Upload/Sinkron Semua Data ke Cloud'}
+            </button>
+
+            {syncStatusMsg && (
+              <span style={{ fontSize: '0.72rem', color: '#2563eb', fontWeight: 600 }}>{syncStatusMsg}</span>
+            )}
           </div>
         </div>
 
@@ -1314,9 +1401,10 @@ export default function CatalogPriceCalculator() {
                 <button
                   type="submit"
                   className="btn-primary"
-                  style={{ padding: '10px 22px' }}
+                  disabled={isSaving}
+                  style={{ padding: '10px 22px', opacity: isSaving ? 0.7 : 1, cursor: isSaving ? 'wait' : 'pointer' }}
                 >
-                  <Save size={16} /> {editingItem ? 'Simpan Perubahan' : 'Simpan Barang Baru'}
+                  <Save size={16} /> {isSaving ? 'Menyimpan ke Cloud...' : (editingItem ? 'Simpan Perubahan' : 'Simpan Barang Baru')}
                 </button>
               </div>
             </form>
