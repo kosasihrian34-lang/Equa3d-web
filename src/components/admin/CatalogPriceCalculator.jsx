@@ -2,9 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { 
   Calculator, Plus, Trash2, Edit2, Save, Image as ImageIcon, 
   Layers, ChevronDown, ChevronRight, Upload, X, DollarSign, 
-  FileSpreadsheet, Sparkles, AlertCircle, Info, Copy, Check
+  FileSpreadsheet, Sparkles, AlertCircle, Info, Copy, Check, Cloud, RefreshCw
 } from 'lucide-react';
 import DeleteConfirmModal from '../DeleteConfirmModal';
+import { 
+  subscribeToCatalogCalculatorItems, 
+  saveCloudCatalogCalculatorItem, 
+  deleteCloudCatalogCalculatorItem, 
+  seedCatalogCalculatorIfEmpty 
+} from '../../firebase';
 
 // Initial sample data matches user's Excel spreadsheet
 const INITIAL_ITEMS = [
@@ -91,11 +97,51 @@ export default function CatalogPriceCalculator() {
     return INITIAL_ITEMS;
   });
 
+  const [isCloudSyncing, setIsCloudSyncing] = useState(false);
+
   // Modal / Form state for Add/Edit item
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [itemToDelete, setItemToDelete] = useState(null);
   const [expandedItems, setExpandedItems] = useState({ 2: true }); // Default expand item 2
+
+  // Real-time Cloud Sync with Firestore
+  useEffect(() => {
+    setIsCloudSyncing(true);
+
+    // First check & seed if Firestore collection is empty
+    const localSaved = localStorage.getItem('equa3d_catalog_calculator_items');
+    let itemsToSeed = INITIAL_ITEMS;
+    if (localSaved) {
+      try {
+        const parsed = JSON.parse(localSaved);
+        if (Array.isArray(parsed) && parsed.length > 0) itemsToSeed = parsed;
+      } catch (e) {}
+    }
+    seedCatalogCalculatorIfEmpty(itemsToSeed);
+
+    // Subscribe to Firestore changes in real-time
+    const unsubscribe = subscribeToCatalogCalculatorItems((cloudItems) => {
+      if (Array.isArray(cloudItems) && cloudItems.length > 0) {
+        // Sort items by id or createdAt if available
+        const sorted = [...cloudItems].sort((a, b) => {
+          const numA = Number(a.id) || 0;
+          const numB = Number(b.id) || 0;
+          return numA - numB;
+        });
+        setItems(sorted);
+        localStorage.setItem('equa3d_catalog_calculator_items', JSON.stringify(sorted));
+      }
+      setIsCloudSyncing(false);
+    }, (err) => {
+      console.warn("Firestore listener fallback to localStorage:", err);
+      setIsCloudSyncing(false);
+    });
+
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
+  }, []);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -115,7 +161,7 @@ export default function CatalogPriceCalculator() {
     ]
   });
 
-  // Save to localStorage
+  // Save to localStorage as offline fallback
   useEffect(() => {
     try {
       localStorage.setItem('equa3d_catalog_calculator_items', JSON.stringify(items));
@@ -279,7 +325,7 @@ export default function CatalogPriceCalculator() {
   };
 
   // Submit Modal
-  const handleSaveItem = (e) => {
+  const handleSaveItem = async (e) => {
     e.preventDefault();
     if (!formData.name.trim()) {
       alert("Nama Barang wajib diisi!");
@@ -297,14 +343,17 @@ export default function CatalogPriceCalculator() {
     }));
 
     if (editingItem) {
-      setItems(items.map(it => it.id === editingItem.id ? {
-        ...it,
+      const updatedItem = {
+        ...editingItem,
         name: formData.name,
         category: parts.length > 1 ? 'MultiPart' : 'Single',
         photo: formData.photo,
         sellingPrice,
         parts
-      } : it));
+      };
+      setItems(items.map(it => it.id === editingItem.id ? updatedItem : it));
+      // Save to Cloud Firestore
+      saveCloudCatalogCalculatorItem(updatedItem).catch(err => console.warn("Cloud save error:", err));
     } else {
       const newItem = {
         id: Date.now(),
@@ -315,10 +364,11 @@ export default function CatalogPriceCalculator() {
         parts
       };
       setItems([newItem, ...items]);
-      // Auto expand if multipart
       if (parts.length > 1) {
         setExpandedItems(prev => ({ ...prev, [newItem.id]: true }));
       }
+      // Save to Cloud Firestore
+      saveCloudCatalogCalculatorItem(newItem).catch(err => console.warn("Cloud save error:", err));
     }
 
     setIsModalOpen(false);
@@ -333,10 +383,13 @@ export default function CatalogPriceCalculator() {
   };
 
   // Confirm delete
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (itemToDelete) {
-      setItems(items.filter(it => it.id !== itemToDelete.id));
+      const delId = itemToDelete.id;
+      setItems(items.filter(it => it.id !== delId));
       setItemToDelete(null);
+      // Delete from Cloud Firestore
+      deleteCloudCatalogCalculatorItem(delId).catch(err => console.warn("Cloud delete error:", err));
     }
   };
 
@@ -440,6 +493,22 @@ export default function CatalogPriceCalculator() {
           <p style={{ fontSize: '0.85rem', color: '#64748b', marginTop: '4px' }}>
             Perhitungan modal per gram, biaya lain/komponen, total modal assembly barang ber-part (seperti Lampu Bulan), serta margin laba bersih.
           </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '6px' }}>
+            <span style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '5px',
+              fontSize: '0.74rem',
+              fontWeight: 700,
+              background: '#ecfdf5',
+              color: '#047857',
+              border: '1px solid #a7f3d0',
+              padding: '2px 8px',
+              borderRadius: '6px'
+            }}>
+              <Cloud size={13} /> Cloud Firestore Terhubung (Real-Time Sinkron Semua Perangkat)
+            </span>
+          </div>
         </div>
 
         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>

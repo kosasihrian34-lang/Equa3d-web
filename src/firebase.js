@@ -107,3 +107,52 @@ export const seedInitialProductsIfEmpty = async (initialList = []) => {
     console.warn("Failed to seed initial products to Firestore:", err);
   }
 };
+
+// Real-Time listener for catalog calculator items
+export const subscribeToCatalogCalculatorItems = (onUpdate, onError) => {
+  const calcRef = collection(db, "catalog_calculator");
+  
+  return onSnapshot(calcRef, (snapshot) => {
+    const items = snapshot.docs.map(docSnap => ({
+      id: docSnap.id,
+      ...docSnap.data()
+    }));
+    onUpdate(items);
+  }, (err) => {
+    console.error("Firestore catalog_calculator listener error:", err);
+    if (onError) onError(err);
+  });
+};
+
+// Save single item to Firestore catalog_calculator
+export const saveCloudCatalogCalculatorItem = async (item) => {
+  if (!item || !item.id) return;
+  const cleanItem = JSON.parse(JSON.stringify(item));
+  const docRef = doc(db, "catalog_calculator", String(item.id));
+  await setDoc(docRef, { ...cleanItem, updatedAt: new Date().toISOString() }, { merge: true });
+  return cleanItem;
+};
+
+// Delete item from Firestore catalog_calculator
+export const deleteCloudCatalogCalculatorItem = async (itemId) => {
+  if (!itemId) return;
+  const docRef = doc(db, "catalog_calculator", String(itemId));
+  await deleteDoc(docRef);
+};
+
+// Seed initial calculator items if collection is empty
+export const seedCatalogCalculatorIfEmpty = async (initialList = []) => {
+  try {
+    const calcRef = collection(db, "catalog_calculator");
+    const snapshot = await getDocs(calcRef);
+    if (snapshot.empty && initialList.length > 0) {
+      for (const item of initialList) {
+        const docRef = doc(db, "catalog_calculator", String(item.id));
+        await setDoc(docRef, { ...item, createdAt: new Date().toISOString() });
+      }
+    }
+  } catch (err) {
+    console.warn("Failed to seed catalog calculator:", err);
+  }
+};
+
