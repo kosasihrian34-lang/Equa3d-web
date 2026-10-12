@@ -118,17 +118,17 @@ export default function WeeklyExpenses() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
             <div>
               <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#334155' }}>Harga Filament per 1000g (1kg)</label>
-              <input type="number" className="input-custom" value={tempParams.filamentPer1000g === 0 || tempParams.filamentPer1000g === '0' ? '' : tempParams.filamentPer1000g} onFocus={e => e.target.select()} onChange={e => setTempParams({ ...tempParams, filamentPer1000g: e.target.value.replace(/^0+(?=\d)/, '') })} required />
+              <input type="number" className="input-custom" value={tempParams.filamentPer1000g === '' ? '' : tempParams.filamentPer1000g} onFocus={e => e.target.select()} onClick={e => e.target.select()} onChange={e => setTempParams({ ...tempParams, filamentPer1000g: e.target.value.replace(/^0+(?=\d)/, '') })} required />
             </div>
 
             <div>
               <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#334155' }}>Biaya Listrik per Jam Print</label>
-              <input type="number" className="input-custom" value={tempParams.electricityPerHour === 0 || tempParams.electricityPerHour === '0' ? '' : tempParams.electricityPerHour} onFocus={e => e.target.select()} onChange={e => setTempParams({ ...tempParams, electricityPerHour: e.target.value.replace(/^0+(?=\d)/, '') })} required />
+              <input type="number" className="input-custom" value={tempParams.electricityPerHour === '' ? '' : tempParams.electricityPerHour} onFocus={e => e.target.select()} onClick={e => e.target.select()} onChange={e => setTempParams({ ...tempParams, electricityPerHour: e.target.value.replace(/^0+(?=\d)/, '') })} required />
             </div>
 
             <div>
               <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#334155' }}>Biaya Overhead (Lem/Ring/Nozzle) per Pcs</label>
-              <input type="number" className="input-custom" value={tempParams.overheadPerPcs === 0 || tempParams.overheadPerPcs === '0' ? '' : tempParams.overheadPerPcs} onFocus={e => e.target.select()} onChange={e => setTempParams({ ...tempParams, overheadPerPcs: e.target.value.replace(/^0+(?=\d)/, '') })} required />
+              <input type="number" className="input-custom" value={tempParams.overheadPerPcs === '' ? '' : tempParams.overheadPerPcs} onFocus={e => e.target.select()} onClick={e => e.target.select()} onChange={e => setTempParams({ ...tempParams, overheadPerPcs: e.target.value.replace(/^0+(?=\d)/, '') })} required />
             </div>
           </div>
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '12px' }}>
@@ -151,18 +151,18 @@ export default function WeeklyExpenses() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
               <div>
                 <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>Berat/g Per Pcs</label>
-                <input type="number" className="input-custom" value={weightGrams === 0 || weightGrams === '0' ? '' : weightGrams} onFocus={e => e.target.select()} onChange={e => setWeightGrams(e.target.value.replace(/^0+(?=\d)/, ''))} required />
+                <input type="number" className="input-custom" value={weightGrams === '' ? '' : weightGrams} onFocus={e => e.target.select()} onClick={e => e.target.select()} onChange={e => setWeightGrams(e.target.value.replace(/^0+(?=\d)/, ''))} required />
               </div>
 
               <div>
                 <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>Waktu/Jam Per Pcs</label>
-                <input type="number" step="0.5" className="input-custom" value={printHours === 0 || printHours === '0' ? '' : printHours} onFocus={e => e.target.select()} onChange={e => setPrintHours(e.target.value.replace(/^0+(?=\d)/, ''))} required />
+                <input type="number" step="0.5" className="input-custom" value={printHours === '' ? '' : printHours} onFocus={e => e.target.select()} onClick={e => e.target.select()} onChange={e => setPrintHours(e.target.value.replace(/^0+(?=\d)/, ''))} required />
               </div>
             </div>
 
             <div>
               <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>Jumlah Cetak (Pcs)</label>
-              <input type="number" min="1" className="input-custom" value={quantity === 0 || quantity === '0' ? '' : quantity} onFocus={e => e.target.select()} onChange={e => setQuantity(e.target.value.replace(/^0+(?=\d)/, ''))} required />
+              <input type="number" min="1" className="input-custom" value={quantity === '' ? '' : quantity} onFocus={e => e.target.select()} onClick={e => e.target.select()} onChange={e => setQuantity(e.target.value.replace(/^0+(?=\d)/, ''))} required />
             </div>
 
             <button type="submit" className="btn-primary" style={{ marginTop: '8px', padding: '10px' }}>

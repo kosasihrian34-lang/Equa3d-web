@@ -86,8 +86,10 @@ export default function RevenueBreakdown() {
             type="number"
             step="50000"
             className="input-custom"
-            value={weeklyGrossRevenue === 0 || weeklyGrossRevenue === '0' ? '' : weeklyGrossRevenue}
+            placeholder="0"
+            value={weeklyGrossRevenue === '' ? '' : weeklyGrossRevenue}
             onFocus={(e) => e.target.select()}
+            onClick={(e) => e.target.select()}
             onChange={e => setWeeklyGrossRevenue(e.target.value.replace(/^0+(?=\d)/, ''))}
             required
           />

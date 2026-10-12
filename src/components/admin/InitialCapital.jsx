@@ -19,46 +19,54 @@ import {
   seedCapitalItemsIfEmpty
 } from '../../firebase';
 
-// Initial default data
-const DEFAULT_FUNDS = [
-  { id: 'fund-1', date: '2026-10-01', source: 'Pribadi', funderName: 'Tabungan Pribadi (Rian)', amount: 4000000, notes: 'Modal awal dana mandiri' },
-  { id: 'fund-2', date: '2026-10-02', source: 'Orang Tua', funderName: 'Orang Tua', amount: 3000000, notes: 'Bantuan modal awal usaha' },
-  { id: 'fund-3', date: '2026-10-03', source: 'Investor', funderName: 'Investor Mitra', amount: 5000000, notes: 'Penyertaan modal pengadaan mesin 3D' }
-];
+// Initial default data: serba kosong agar user bisa input data real dari awal
+const DEFAULT_FUNDS = [];
+const DEFAULT_ITEMS = [];
 
-const DEFAULT_ITEMS = [
-  { id: 'item-1', date: '2026-10-04', name: "Mesin 3D Printer (Bambu Lab / FDM)", category: "Mesin / Hardware", fundingSource: "Investor", price: 6500000, qty: 1, receiptPhoto: '', notes: 'Pembelian mesin utama print 3D' },
-  { id: 'item-2', date: '2026-10-05', name: "Filament PLA Stock Awal (5 Spool)", category: "Bahan Baku Awal", fundingSource: "Pribadi", price: 180000, qty: 5, receiptPhoto: '', notes: 'Filament PLA warna dasar' },
-  { id: 'item-3', date: '2026-10-05', name: "Set Nozzle Hardened Steel & Sparepart", category: "Peralatan Tools", fundingSource: "Pribadi", price: 350000, qty: 1, receiptPhoto: '', notes: 'Cadangan nozzle 0.4mm' },
-  { id: 'item-4', date: '2026-10-06', name: "Lem Bed Print, Scraper & Finishing Tools", category: "Perlengkapan Lapak/Finishing", fundingSource: "Orang Tua", price: 150000, qty: 1, receiptPhoto: '', notes: 'Perlengkapan pembersihan bed' }
-];
+// Helper to identify previous dummy records
+const isDummyFundId = (id) => typeof id === 'string' && (id === 'fund-1' || id === 'fund-2' || id === 'fund-3');
+const isDummyItemId = (id) => typeof id === 'string' && (id === 'item-1' || id === 'item-2' || id === 'item-3' || id === 'item-4');
 
 export default function InitialCapital() {
-  // Active Tab: 'items' (Belanja Aset) | 'funds' (Pemasukan Uang Modal)
-  const [activeTab, setActiveTab] = useState('items');
+  // Active Tab: 'items' (Belanja Aset) | 'funds' (Pemasukan Uang Modal) - Persisted across refresh
+  const [activeTab, setActiveTab] = useState(() => {
+    return localStorage.getItem('forge3d_initial_capital_tab') || 'items';
+  });
 
-  // Funds State
+  useEffect(() => {
+    try {
+      localStorage.setItem('forge3d_initial_capital_tab', activeTab);
+    } catch (e) {}
+  }, [activeTab]);
+
+  // Funds State (Bersih dari dummy)
   const [funds, setFunds] = useState(() => {
     const saved = localStorage.getItem('forge3d_initial_capital_funds');
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed)) {
+          const cleaned = parsed.filter(f => f && !isDummyFundId(f.id));
+          return cleaned;
+        }
       } catch (e) {}
     }
-    return DEFAULT_FUNDS;
+    return [];
   });
 
-  // Items State (Belanja Aset)
+  // Items State (Bersih dari dummy)
   const [items, setItems] = useState(() => {
     const saved = localStorage.getItem('forge3d_initial_capital_items');
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed)) {
+          const cleaned = parsed.filter(it => it && !isDummyItemId(it.id));
+          return cleaned;
+        }
       } catch (e) {}
     }
-    return DEFAULT_ITEMS;
+    return [];
   });
 
   // Cloud Sync State
@@ -119,17 +127,24 @@ export default function InitialCapital() {
   useEffect(() => {
     setIsCloudSyncing(true);
 
-    // 1. Subscribe to Funds
+    // 1. Subscribe to Funds (Filter out any legacy dummy records)
     const unsubFunds = subscribeToCapitalFunds(async (cloudFunds) => {
+      const cleanCloudFunds = Array.isArray(cloudFunds) 
+        ? cloudFunds.filter(f => f && !isDummyFundId(f.id))
+        : [];
+
       const localRaw = localStorage.getItem('forge3d_initial_capital_funds');
       let localList = [];
       if (localRaw) {
-        try { localList = JSON.parse(localRaw); } catch (e) {}
+        try { 
+          const parsed = JSON.parse(localRaw);
+          if (Array.isArray(parsed)) localList = parsed.filter(f => f && !isDummyFundId(f.id));
+        } catch (e) {}
       }
 
-      if (Array.isArray(cloudFunds) && cloudFunds.length > 0) {
+      if (cleanCloudFunds.length > 0) {
         const missingInCloud = localList.filter(locItem => 
-          locItem && locItem.id && !cloudFunds.some(cItem => String(cItem.id) === String(locItem.id))
+          locItem && locItem.id && !cleanCloudFunds.some(cItem => String(cItem.id) === String(locItem.id))
         );
 
         if (missingInCloud.length > 0) {
@@ -137,33 +152,41 @@ export default function InitialCapital() {
             await saveAllCloudCapitalFunds(missingInCloud);
           } catch (e) {}
           const mergedMap = new Map();
-          cloudFunds.forEach(item => mergedMap.set(String(item.id), item));
+          cleanCloudFunds.forEach(item => mergedMap.set(String(item.id), item));
           missingInCloud.forEach(item => mergedMap.set(String(item.id), item));
           const mergedList = Array.from(mergedMap.values());
           setFunds(mergedList);
           localStorage.setItem('forge3d_initial_capital_funds', JSON.stringify(mergedList));
         } else {
-          setFunds(cloudFunds);
-          localStorage.setItem('forge3d_initial_capital_funds', JSON.stringify(cloudFunds));
+          setFunds(cleanCloudFunds);
+          localStorage.setItem('forge3d_initial_capital_funds', JSON.stringify(cleanCloudFunds));
         }
       } else {
-        const listToSeed = localList.length > 0 ? localList : DEFAULT_FUNDS;
-        seedCapitalFundsIfEmpty(listToSeed);
+        // Cloud is empty, use clean local records if available, otherwise stay clean & empty
+        setFunds(localList);
+        localStorage.setItem('forge3d_initial_capital_funds', JSON.stringify(localList));
       }
       setIsCloudSyncing(false);
     }, () => setIsCloudSyncing(false));
 
-    // 2. Subscribe to Items
+    // 2. Subscribe to Items (Filter out any legacy dummy records)
     const unsubItems = subscribeToCapitalItems(async (cloudItems) => {
+      const cleanCloudItems = Array.isArray(cloudItems)
+        ? cloudItems.filter(it => it && !isDummyItemId(it.id))
+        : [];
+
       const localRaw = localStorage.getItem('forge3d_initial_capital_items');
       let localList = [];
       if (localRaw) {
-        try { localList = JSON.parse(localRaw); } catch (e) {}
+        try {
+          const parsed = JSON.parse(localRaw);
+          if (Array.isArray(parsed)) localList = parsed.filter(it => it && !isDummyItemId(it.id));
+        } catch (e) {}
       }
 
-      if (Array.isArray(cloudItems) && cloudItems.length > 0) {
+      if (cleanCloudItems.length > 0) {
         const missingInCloud = localList.filter(locItem => 
-          locItem && locItem.id && !cloudItems.some(cItem => String(cItem.id) === String(locItem.id))
+          locItem && locItem.id && !cleanCloudItems.some(cItem => String(cItem.id) === String(locItem.id))
         );
 
         if (missingInCloud.length > 0) {
@@ -171,18 +194,19 @@ export default function InitialCapital() {
             await saveAllCloudCapitalItems(missingInCloud);
           } catch (e) {}
           const mergedMap = new Map();
-          cloudItems.forEach(item => mergedMap.set(String(item.id), item));
+          cleanCloudItems.forEach(item => mergedMap.set(String(item.id), item));
           missingInCloud.forEach(item => mergedMap.set(String(item.id), item));
           const mergedList = Array.from(mergedMap.values());
           setItems(mergedList);
           localStorage.setItem('forge3d_initial_capital_items', JSON.stringify(mergedList));
         } else {
-          setItems(cloudItems);
-          localStorage.setItem('forge3d_initial_capital_items', JSON.stringify(cloudItems));
+          setItems(cleanCloudItems);
+          localStorage.setItem('forge3d_initial_capital_items', JSON.stringify(cleanCloudItems));
         }
       } else {
-        const listToSeed = localList.length > 0 ? localList : DEFAULT_ITEMS;
-        seedCapitalItemsIfEmpty(listToSeed);
+        // Cloud is empty, use clean local records if available, otherwise stay clean & empty
+        setItems(localList);
+        localStorage.setItem('forge3d_initial_capital_items', JSON.stringify(localList));
       }
       setIsCloudSyncing(false);
     }, () => setIsCloudSyncing(false));
@@ -1178,8 +1202,9 @@ export default function InitialCapital() {
                   type="number"
                   className="input-custom"
                   placeholder="Contoh: 5000000"
-                  value={fundForm.amount === 0 || fundForm.amount === '0' ? '' : fundForm.amount}
+                  value={fundForm.amount === '' ? '' : fundForm.amount}
                   onFocus={e => e.target.select()}
+                  onClick={e => e.target.select()}
                   onChange={e => setFundForm({ ...fundForm, amount: e.target.value.replace(/^0+(?=\d)/, '') })}
                   required
                 />
@@ -1324,8 +1349,9 @@ export default function InitialCapital() {
                     type="number"
                     className="input-custom"
                     placeholder="Contoh: 6500000"
-                    value={itemForm.price === 0 || itemForm.price === '0' ? '' : itemForm.price}
+                    value={itemForm.price === '' ? '' : itemForm.price}
                     onFocus={e => e.target.select()}
+                    onClick={e => e.target.select()}
                     onChange={e => setItemForm({ ...itemForm, price: e.target.value.replace(/^0+(?=\d)/, '') })}
                     required
                   />
@@ -1339,8 +1365,10 @@ export default function InitialCapital() {
                     type="number"
                     min="1"
                     className="input-custom"
-                    value={itemForm.qty === 0 || itemForm.qty === '0' ? '' : itemForm.qty}
+                    placeholder="1"
+                    value={itemForm.qty === '' ? '' : itemForm.qty}
                     onFocus={e => e.target.select()}
+                    onClick={e => e.target.select()}
                     onChange={e => setItemForm({ ...itemForm, qty: e.target.value.replace(/^0+(?=\d)/, '') })}
                     required
                   />

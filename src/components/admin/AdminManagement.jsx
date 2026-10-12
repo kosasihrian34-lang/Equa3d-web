@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import InitialCapital from './InitialCapital';
 import WeeklyExpenses from './WeeklyExpenses';
 import RevenueBreakdown from './RevenueBreakdown';
@@ -9,7 +9,15 @@ import CatalogPriceCalculator from './CatalogPriceCalculator';
 import { ChevronDown, Shield } from 'lucide-react';
 
 export default function AdminManagement({ catalogProducts = [] }) {
-  const [activeSubModule, setActiveSubModule] = useState('catalog-price-calc');
+  const [activeSubModule, setActiveSubModule] = useState(() => {
+    return localStorage.getItem('forge3d_admin_submodule') || 'catalog-price-calc';
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('forge3d_admin_submodule', activeSubModule);
+    } catch (e) {}
+  }, [activeSubModule]);
 
   return (
     <section style={{

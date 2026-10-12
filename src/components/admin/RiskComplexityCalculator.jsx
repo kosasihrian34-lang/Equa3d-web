@@ -130,8 +130,11 @@ export default function RiskComplexityCalculator() {
                 type="number"
                 min="1"
                 className="input-custom"
-                value={weightGrams}
-                onChange={(e) => setWeightGrams(Math.max(1, parseInt(e.target.value) || 1))}
+                placeholder="150"
+                value={weightGrams === '' ? '' : weightGrams}
+                onFocus={(e) => e.target.select()}
+                onClick={(e) => e.target.select()}
+                onChange={(e) => setWeightGrams(e.target.value.replace(/^0+(?=\d)/, ''))}
               />
             </div>
           </div>
@@ -145,8 +148,11 @@ export default function RiskComplexityCalculator() {
               <input
                 type="number"
                 className="input-custom"
-                value={customRate}
-                onChange={(e) => setCustomRate(Number(e.target.value) || 0)}
+                placeholder="0"
+                value={customRate === '' ? '' : customRate}
+                onFocus={(e) => e.target.select()}
+                onClick={(e) => e.target.select()}
+                onChange={(e) => setCustomRate(e.target.value.replace(/^0+(?=\d)/, ''))}
               />
             </div>
           )}
@@ -159,11 +165,14 @@ export default function RiskComplexityCalculator() {
               </label>
               <input
                 type="number"
-                min="0.5"
+                min="0.1"
                 step="0.5"
                 className="input-custom"
-                value={printHours}
-                onChange={(e) => setPrintHours(Math.max(0.5, parseFloat(e.target.value) || 1))}
+                placeholder="8"
+                value={printHours === '' ? '' : printHours}
+                onFocus={(e) => e.target.select()}
+                onClick={(e) => e.target.select()}
+                onChange={(e) => setPrintHours(e.target.value.replace(/^0+(?=\d)/, ''))}
               />
             </div>
 
@@ -174,8 +183,11 @@ export default function RiskComplexityCalculator() {
               <input
                 type="number"
                 className="input-custom"
-                value={electricityHourlyRate}
-                onChange={(e) => setElectricityHourlyRate(Number(e.target.value) || 0)}
+                placeholder="1500"
+                value={electricityHourlyRate === '' ? '' : electricityHourlyRate}
+                onFocus={(e) => e.target.select()}
+                onClick={(e) => e.target.select()}
+                onChange={(e) => setElectricityHourlyRate(e.target.value.replace(/^0+(?=\d)/, ''))}
               />
             </div>
           </div>

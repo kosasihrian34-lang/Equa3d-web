@@ -665,8 +665,9 @@ export default function AdminProductModal({ productToEdit, onClose, onSaveProduc
               type="number"
               name="weightGrams"
               className="input-custom"
-              value={formData.weightGrams === 0 || formData.weightGrams === '0' ? '' : formData.weightGrams}
+              value={formData.weightGrams === '' ? '' : formData.weightGrams}
               onFocus={(e) => e.target.select()}
+              onClick={(e) => e.target.select()}
               onChange={handleChange}
               placeholder="0"
             />

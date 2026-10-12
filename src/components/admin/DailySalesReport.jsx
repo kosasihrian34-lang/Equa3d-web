@@ -191,8 +191,10 @@ export default function DailySalesReport({ catalogProducts = [] }) {
             type="number"
             min="1"
             className="input-custom"
-            value={form.qty === 0 || form.qty === '0' ? '' : form.qty}
+            placeholder="1"
+            value={form.qty === '' ? '' : form.qty}
             onFocus={(e) => e.target.select()}
+            onClick={(e) => e.target.select()}
             onChange={e => setForm({ ...form, qty: e.target.value.replace(/^0+(?=\d)/, '') })}
             required
           />
@@ -203,8 +205,10 @@ export default function DailySalesReport({ catalogProducts = [] }) {
           <input
             type="number"
             className="input-custom"
-            value={form.unitPrice === 0 || form.unitPrice === '0' ? '' : form.unitPrice}
+            placeholder="0"
+            value={form.unitPrice === '' ? '' : form.unitPrice}
             onFocus={(e) => e.target.select()}
+            onClick={(e) => e.target.select()}
             onChange={e => setForm({ ...form, unitPrice: e.target.value.replace(/^0+(?=\d)/, '') })}
             required
           />

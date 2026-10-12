@@ -240,8 +240,24 @@ export default function App() {
   }, 0);
 
   // 6. Tab States: User ('catalog' | 'materials') & Admin ('catalog' | 'management')
-  const [userTab, setUserTab] = useState('catalog');
-  const [adminTab, setAdminTab] = useState('catalog');
+  const [userTab, setUserTab] = useState(() => {
+    return localStorage.getItem('forge3d_user_tab') || 'catalog';
+  });
+  const [adminTab, setAdminTab] = useState(() => {
+    return localStorage.getItem('forge3d_admin_tab') || 'catalog';
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('forge3d_user_tab', userTab);
+    } catch (e) {}
+  }, [userTab]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('forge3d_admin_tab', adminTab);
+    } catch (e) {}
+  }, [adminTab]);
 
   // Modals state
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -272,12 +288,14 @@ export default function App() {
   const handleSuccessLogin = () => {
     setIsAdminLoggedIn(true);
     localStorage.setItem('forge3d_admin_auth', 'true');
-    setAdminTab('catalog');
+    const lastAdminTab = localStorage.getItem('forge3d_admin_tab') || 'management';
+    setAdminTab(lastAdminTab);
   };
 
   const handleLogoutAdmin = () => {
     setIsAdminLoggedIn(false);
     localStorage.removeItem('forge3d_admin_auth');
+    localStorage.removeItem('forge3d_admin_tab');
     setAdminTab('catalog');
     setUserTab('catalog');
   };

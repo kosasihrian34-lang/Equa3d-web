@@ -32,7 +32,7 @@ export default function PriceEstimator() {
   const baseMaterialCost = (rates[material] || 450) * weightGrams;
   const resolutionMultiplier = resMultipliers[layerResolution] || 1.0;
   const printCostPerPcs = Math.round((baseMaterialCost * resolutionMultiplier) + (finishingRates[finishing] || 0) + 10000);
-  const totalCost = printCostPerPcs * quantity;
+  const totalCost = printCostPerPcs * (Number(quantity) || 1);
 
   const formattedTotal = new Intl.NumberFormat('id-ID', {
     style: 'currency',
@@ -182,11 +182,13 @@ export default function PriceEstimator() {
               min="1"
               max="100"
               className="input-custom"
-              value={quantity === 0 || quantity === '0' ? '' : quantity}
+              placeholder="1"
+              value={quantity === '' ? '' : quantity}
               onFocus={(e) => e.target.select()}
+              onClick={(e) => e.target.select()}
               onChange={(e) => {
                 const val = e.target.value.replace(/^0+(?=\d)/, '');
-                setQuantity(val === '' ? '' : Math.max(1, parseInt(val) || 1));
+                setQuantity(val);
               }}
             />
           </div>

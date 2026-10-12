@@ -117,22 +117,22 @@ export default function MultiColorCalculator() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px' }}>
             <div>
               <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#334155' }}>1 Warna (Rp/g)</label>
-              <input type="number" className="input-custom" value={tempRates.color1 === 0 || tempRates.color1 === '0' ? '' : tempRates.color1} onFocus={e => e.target.select()} onChange={e => setTempRates({ ...tempRates, color1: e.target.value.replace(/^0+(?=\d)/, '') })} required />
+              <input type="number" className="input-custom" value={tempRates.color1 === '' ? '' : tempRates.color1} onFocus={e => e.target.select()} onClick={e => e.target.select()} onChange={e => setTempRates({ ...tempRates, color1: e.target.value.replace(/^0+(?=\d)/, '') })} required />
             </div>
 
             <div>
               <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#334155' }}>2 Warna (Rp/g)</label>
-              <input type="number" className="input-custom" value={tempRates.color2 === 0 || tempRates.color2 === '0' ? '' : tempRates.color2} onFocus={e => e.target.select()} onChange={e => setTempRates({ ...tempRates, color2: e.target.value.replace(/^0+(?=\d)/, '') })} required />
+              <input type="number" className="input-custom" value={tempRates.color2 === '' ? '' : tempRates.color2} onFocus={e => e.target.select()} onClick={e => e.target.select()} onChange={e => setTempRates({ ...tempRates, color2: e.target.value.replace(/^0+(?=\d)/, '') })} required />
             </div>
 
             <div>
               <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#334155' }}>3 Warna (Rp/g)</label>
-              <input type="number" className="input-custom" value={tempRates.color3 === 0 || tempRates.color3 === '0' ? '' : tempRates.color3} onFocus={e => e.target.select()} onChange={e => setTempRates({ ...tempRates, color3: e.target.value.replace(/^0+(?=\d)/, '') })} required />
+              <input type="number" className="input-custom" value={tempRates.color3 === '' ? '' : tempRates.color3} onFocus={e => e.target.select()} onClick={e => e.target.select()} onChange={e => setTempRates({ ...tempRates, color3: e.target.value.replace(/^0+(?=\d)/, '') })} required />
             </div>
 
             <div>
               <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#334155' }}>4 Warna (Rp/g)</label>
-              <input type="number" className="input-custom" value={tempRates.color4 === 0 || tempRates.color4 === '0' ? '' : tempRates.color4} onFocus={e => e.target.select()} onChange={e => setTempRates({ ...tempRates, color4: e.target.value.replace(/^0+(?=\d)/, '') })} required />
+              <input type="number" className="input-custom" value={tempRates.color4 === '' ? '' : tempRates.color4} onFocus={e => e.target.select()} onClick={e => e.target.select()} onChange={e => setTempRates({ ...tempRates, color4: e.target.value.replace(/^0+(?=\d)/, '') })} required />
             </div>
           </div>
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '12px' }}>
@@ -196,7 +196,7 @@ export default function MultiColorCalculator() {
 
             <div>
               <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>Jumlah Cetak (Pcs)</label>
-              <input type="number" min="1" className="input-custom" value={quantity === 0 || quantity === '0' ? '' : quantity} onFocus={e => e.target.select()} onChange={e => setQuantity(e.target.value.replace(/^0+(?=\d)/, ''))} />
+              <input type="number" min="1" className="input-custom" placeholder="1" value={quantity === '' ? '' : quantity} onFocus={e => e.target.select()} onClick={e => e.target.select()} onChange={e => setQuantity(e.target.value.replace(/^0+(?=\d)/, ''))} />
             </div>
           </div>
         </div>
@@ -228,7 +228,7 @@ export default function MultiColorCalculator() {
 
           <form onSubmit={handleAddAdditionalCost} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: '6px' }}>
             <input type="text" className="input-custom" placeholder="Nama Biaya (misal: Tape)" value={newCostName} onChange={e => setNewCostName(e.target.value)} style={{ padding: '6px 10px', fontSize: '0.8rem' }} required />
-            <input type="number" className="input-custom" placeholder="Harga Rp" value={newCostPrice} onFocus={e => e.target.select()} onChange={e => setNewCostPrice(e.target.value.replace(/^0+(?=\d)/, ''))} style={{ padding: '6px 10px', fontSize: '0.8rem' }} required />
+            <input type="number" className="input-custom" placeholder="Harga Rp" value={newCostPrice === '' ? '' : newCostPrice} onFocus={e => e.target.select()} onClick={e => e.target.select()} onChange={e => setNewCostPrice(e.target.value.replace(/^0+(?=\d)/, ''))} style={{ padding: '6px 10px', fontSize: '0.8rem' }} required />
             <button type="submit" className="btn-primary" style={{ padding: '6px 10px' }}><Plus size={14} /></button>
           </form>
         </div>

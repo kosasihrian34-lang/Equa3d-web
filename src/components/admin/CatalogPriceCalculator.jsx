@@ -261,7 +261,7 @@ export default function CatalogPriceCalculator() {
           weight: '',
           time: '',
           costPerGram: 200,
-          otherCost: 0
+          otherCost: ''
         }
       ]
     });
@@ -276,7 +276,11 @@ export default function CatalogPriceCalculator() {
       category: item.category || (item.parts.length > 1 ? 'MultiPart' : 'Single'),
       photo: item.photo || '',
       sellingPrice: item.sellingPrice || '',
-      parts: item.parts.map(p => ({ ...p }))
+      parts: item.parts.map(p => ({
+        ...p,
+        weight: p.weight === 0 || p.weight === '0' ? '' : p.weight,
+        otherCost: p.otherCost === 0 || p.otherCost === '0' ? '' : p.otherCost
+      }))
     });
     setIsModalOpen(true);
   };
@@ -294,7 +298,7 @@ export default function CatalogPriceCalculator() {
           weight: '',
           time: '',
           costPerGram: 200,
-          otherCost: 0
+          otherCost: ''
         }
       ]
     }));
@@ -1039,8 +1043,9 @@ export default function CatalogPriceCalculator() {
                         type="number"
                         className="input-custom"
                         placeholder="Contoh: 170000"
-                        value={formData.sellingPrice === 0 || formData.sellingPrice === '0' ? '' : formData.sellingPrice}
+                        value={formData.sellingPrice === '' ? '' : formData.sellingPrice}
                         onFocus={(e) => e.target.select()}
+                        onClick={(e) => e.target.select()}
                         onChange={(e) => setFormData({ ...formData, sellingPrice: e.target.value.replace(/^0+(?=\d)/, '') })}
                         required
                       />
@@ -1247,8 +1252,9 @@ export default function CatalogPriceCalculator() {
                               step="0.01"
                               className="input-custom"
                               placeholder="0"
-                              value={part.weight === 0 || part.weight === '0' ? '' : part.weight}
+                              value={part.weight === '' ? '' : part.weight}
                               onFocus={(e) => e.target.select()}
+                              onClick={(e) => e.target.select()}
                               onChange={(e) => handlePartChange(pIdx, 'weight', e.target.value.replace(/^0+(?=\d)/, ''))}
                               style={{ padding: '8px 10px', fontSize: '0.82rem' }}
                               required
@@ -1279,8 +1285,9 @@ export default function CatalogPriceCalculator() {
                               type="number"
                               className="input-custom"
                               placeholder="200"
-                              value={part.costPerGram === 0 || part.costPerGram === '0' ? '' : part.costPerGram}
+                              value={part.costPerGram === '' ? '' : part.costPerGram}
                               onFocus={(e) => e.target.select()}
+                              onClick={(e) => e.target.select()}
                               onChange={(e) => handlePartChange(pIdx, 'costPerGram', e.target.value.replace(/^0+(?=\d)/, ''))}
                               style={{ padding: '8px 10px', fontSize: '0.82rem' }}
                               required
@@ -1296,8 +1303,9 @@ export default function CatalogPriceCalculator() {
                               type="number"
                               className="input-custom"
                               placeholder="0"
-                              value={part.otherCost === 0 || part.otherCost === '0' ? '' : part.otherCost}
+                              value={part.otherCost === '' ? '' : part.otherCost}
                               onFocus={(e) => e.target.select()}
+                              onClick={(e) => e.target.select()}
                               onChange={(e) => handlePartChange(pIdx, 'otherCost', e.target.value.replace(/^0+(?=\d)/, ''))}
                               style={{ padding: '8px 10px', fontSize: '0.82rem' }}
                             />
