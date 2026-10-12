@@ -53,6 +53,15 @@ export default function App() {
     localStorage.setItem('forge3d_lang', lang);
   }, [lang]);
 
+  // Clean up legacy localStorage keys to free up storage quota
+  useEffect(() => {
+    try {
+      ['forge3d_products', 'forge3d_products_v1', 'forge3d_products_v2', 'forge3d_products_v3', 'forge3d_products_v4'].forEach(k => {
+        localStorage.removeItem(k);
+      });
+    } catch (e) {}
+  }, []);
+
   // 2. Auth State (Persistent)
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(() => {
     return localStorage.getItem('forge3d_admin_auth') === 'true';

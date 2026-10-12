@@ -110,17 +110,40 @@ export default function InitialCapital() {
   const [isSavingFund, setIsSavingFund] = useState(false);
   const [isSavingItem, setIsSavingItem] = useState(false);
 
+  // Safe Local Storage Handlers with quota protection
+  const safeSaveLocalFunds = (fundsList) => {
+    try {
+      localStorage.setItem('forge3d_initial_capital_funds', JSON.stringify(fundsList));
+    } catch (e) {
+      console.warn("localStorage quota warning for funds:", e);
+    }
+  };
+
+  const safeSaveLocalItems = (itemsList) => {
+    try {
+      localStorage.setItem('forge3d_initial_capital_items', JSON.stringify(itemsList));
+    } catch (err) {
+      console.warn("localStorage quota reached, saving lightweight local version:", err);
+      try {
+        // Strip heavy base64 strings in local storage cache so it doesn't crash or exceed quota
+        const lightweight = itemsList.map(it => ({
+          ...it,
+          receiptPhoto: it.receiptPhoto && it.receiptPhoto.length > 500 ? '' : it.receiptPhoto
+        }));
+        localStorage.setItem('forge3d_initial_capital_items', JSON.stringify(lightweight));
+      } catch (e2) {
+        console.warn("localStorage completely full, relying on Firebase Cloud Firestore:", e2);
+      }
+    }
+  };
+
   // Local storage backups
   useEffect(() => {
-    try {
-      localStorage.setItem('forge3d_initial_capital_funds', JSON.stringify(funds));
-    } catch (e) {}
+    safeSaveLocalFunds(funds);
   }, [funds]);
 
   useEffect(() => {
-    try {
-      localStorage.setItem('forge3d_initial_capital_items', JSON.stringify(items));
-    } catch (e) {}
+    safeSaveLocalItems(items);
   }, [items]);
 
   // Real-time Cloud Sync with Firestore
@@ -251,8 +274,8 @@ export default function InitialCapital() {
       const img = new Image();
       img.onload = () => {
         const canvas = document.createElement('canvas');
-        const MAX_WIDTH = 900;
-        const MAX_HEIGHT = 900;
+        const MAX_WIDTH = 800;
+        const MAX_HEIGHT = 800;
         let width = img.width;
         let height = img.height;
 
@@ -273,7 +296,7 @@ export default function InitialCapital() {
         const ctx = canvas.getContext('2d');
         ctx.drawImage(img, 0, 0, width, height);
 
-        const compressed = canvas.toDataURL('image/jpeg', 0.82);
+        const compressed = canvas.toDataURL('image/jpeg', 0.72);
         setItemForm(prev => ({ ...prev, receiptPhoto: compressed }));
       };
       img.src = event.target.result;
@@ -342,21 +365,20 @@ export default function InitialCapital() {
     };
 
     try {
+      let updated;
       if (editingFund) {
-        const updated = funds.map(f => f.id === editingFund.id ? fundData : f);
-        setFunds(updated);
-        localStorage.setItem('forge3d_initial_capital_funds', JSON.stringify(updated));
-        await saveCloudCapitalFund(fundData);
+        updated = funds.map(f => f.id === editingFund.id ? fundData : f);
       } else {
-        const updated = [...funds, fundData];
-        setFunds(updated);
-        localStorage.setItem('forge3d_initial_capital_funds', JSON.stringify(updated));
-        await saveCloudCapitalFund(fundData);
+        updated = [...funds, fundData];
       }
+      setFunds(updated);
+      safeSaveLocalFunds(updated);
+
+      await saveCloudCapitalFund(fundData);
       setIsFundModalOpen(false);
     } catch (err) {
       console.error("Gagal simpan dana ke Cloud:", err);
-      alert("Data tersimpan di lokal (Cloud notice: " + (err.message || "koneksi offline") + ")");
+      alert("Catatan: Terjadi kendala sinkronisasi Cloud: " + (err.message || "koneksi offline"));
       setIsFundModalOpen(false);
     } finally {
       setIsSavingFund(false);
@@ -428,21 +450,20 @@ export default function InitialCapital() {
     };
 
     try {
+      let updated;
       if (editingItem) {
-        const updated = items.map(it => it.id === editingItem.id ? itemData : it);
-        setItems(updated);
-        localStorage.setItem('forge3d_initial_capital_items', JSON.stringify(updated));
-        await saveCloudCapitalItem(itemData);
+        updated = items.map(it => it.id === editingItem.id ? itemData : it);
       } else {
-        const updated = [...items, itemData];
-        setItems(updated);
-        localStorage.setItem('forge3d_initial_capital_items', JSON.stringify(updated));
-        await saveCloudCapitalItem(itemData);
+        updated = [...items, itemData];
       }
+      setItems(updated);
+      safeSaveLocalItems(updated);
+
+      await saveCloudCapitalItem(itemData);
       setIsItemModalOpen(false);
     } catch (err) {
       console.error("Gagal simpan aset ke Cloud:", err);
-      alert("Data tersimpan di lokal (Cloud notice: " + (err.message || "koneksi offline") + ")");
+      alert("Catatan: Terjadi kendala sinkronisasi Cloud: " + (err.message || "koneksi offline"));
       setIsItemModalOpen(false);
     } finally {
       setIsSavingItem(false);
