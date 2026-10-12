@@ -23,6 +23,16 @@ import {
 const DEFAULT_FUNDS = [];
 const DEFAULT_ITEMS = [];
 
+// Kategori Aset & Belanja Terstandarisasi untuk Percetakan 3D
+const ASSET_CATEGORIES = [
+  'Aksesoris & Komponen Produk (Ring Keychain, Bingkai, LED, Magnet, Baut)',
+  'Bahan Baku Cetak (Filament PLA, PETG, Resin UV)',
+  'Mesin & Hardware Utama (3D Printer, Dryer, AMS)',
+  'Peralatan Tools & Maintenance (Nozzle, Scraper, Tang, Kunci L)',
+  'Perlengkapan Lapak & Finishing (Lem Bed, Alkohol, Cat, Amplas)',
+  'Kemasan & Packaging (Plastik Klip, Box Kardus, Bubble Wrap)'
+];
+
 // Helper to identify previous dummy records
 const isDummyFundId = (id) => typeof id === 'string' && (id === 'fund-1' || id === 'fund-2' || id === 'fund-3');
 const isDummyItemId = (id) => typeof id === 'string' && (id === 'item-1' || id === 'item-2' || id === 'item-3' || id === 'item-4');
@@ -99,13 +109,16 @@ export default function InitialCapital() {
   const [itemForm, setItemForm] = useState({
     date: todayStr,
     name: '',
-    category: 'Mesin / Hardware',
+    category: 'Aksesoris & Komponen Produk (Ring Keychain, Bingkai, LED, Magnet, Baut)',
     fundingSource: 'Pribadi',
     price: '',
     qty: 1,
     receiptPhoto: '',
     notes: ''
   });
+
+  const [isCustomCategory, setIsCustomCategory] = useState(false);
+  const [customCategoryInput, setCustomCategoryInput] = useState('');
 
   const [isSavingFund, setIsSavingFund] = useState(false);
   const [isSavingItem, setIsSavingItem] = useState(false);
@@ -404,28 +417,34 @@ export default function InitialCapital() {
     setItemForm({
       date: todayStr,
       name: '',
-      category: 'Mesin / Hardware',
+      category: 'Aksesoris & Komponen Produk (Ring Keychain, Bingkai, LED, Magnet, Baut)',
       fundingSource: 'Pribadi',
       price: '',
       qty: 1,
       receiptPhoto: '',
       notes: ''
     });
+    setIsCustomCategory(false);
+    setCustomCategoryInput('');
     setIsItemModalOpen(true);
   };
 
   const handleOpenEditItem = (item) => {
     setEditingItem(item);
+    const cat = item.category || 'Aksesoris & Komponen Produk (Ring Keychain, Bingkai, LED, Magnet, Baut)';
+    const isStandard = ASSET_CATEGORIES.includes(cat);
     setItemForm({
       date: item.date || todayStr,
       name: item.name || '',
-      category: item.category || 'Mesin / Hardware',
+      category: cat,
       fundingSource: item.fundingSource || 'Pribadi',
       price: item.price || '',
       qty: item.qty || 1,
       receiptPhoto: item.receiptPhoto || '',
       notes: item.notes || ''
     });
+    setIsCustomCategory(!isStandard);
+    setCustomCategoryInput(!isStandard ? cat : '');
     setIsItemModalOpen(true);
   };
 
@@ -437,11 +456,15 @@ export default function InitialCapital() {
     }
 
     setIsSavingItem(true);
+    const finalCategory = isCustomCategory
+      ? (customCategoryInput.trim() || 'Lain-lain / Kustom')
+      : itemForm.category;
+
     const itemData = {
       id: editingItem ? editingItem.id : `item-${Date.now()}`,
       date: itemForm.date || todayStr,
       name: itemForm.name.trim(),
-      category: itemForm.category,
+      category: finalCategory,
       fundingSource: itemForm.fundingSource,
       price: Number(itemForm.price) || 0,
       qty: Number(itemForm.qty) || 1,
@@ -1348,18 +1371,55 @@ export default function InitialCapital() {
               <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr 1fr', gap: '10px' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>
-                    Kategori Aset
+                    Kategori Aset / Belanja Modal
                   </label>
                   <select
                     className="input-custom"
-                    value={itemForm.category}
-                    onChange={e => setItemForm({ ...itemForm, category: e.target.value })}
+                    value={isCustomCategory ? 'CUSTOM' : itemForm.category}
+                    onChange={e => {
+                      if (e.target.value === 'CUSTOM') {
+                        setIsCustomCategory(true);
+                      } else {
+                        setIsCustomCategory(false);
+                        setItemForm({ ...itemForm, category: e.target.value });
+                      }
+                    }}
                   >
-                    <option value="Mesin / Hardware">Mesin / Hardware</option>
-                    <option value="Bahan Baku Awal">Bahan Baku Awal</option>
-                    <option value="Peralatan Tools">Peralatan Tools</option>
-                    <option value="Perlengkapan Lapak/Finishing">Perlengkapan Lapak/Finishing</option>
+                    <option value="Aksesoris & Komponen Produk (Ring Keychain, Bingkai, LED, Magnet, Baut)">
+                      🔗 Aksesoris & Komponen (Ring Keychain, Bingkai, LED, Magnet, Baut)
+                    </option>
+                    <option value="Bahan Baku Cetak (Filament PLA, PETG, Resin UV)">
+                      🧵 Bahan Baku Cetak (Filament PLA, PETG, Resin UV)
+                    </option>
+                    <option value="Mesin & Hardware Utama (3D Printer, Dryer, AMS)">
+                      🖨️ Mesin & Hardware Utama (3D Printer, Dryer, AMS)
+                    </option>
+                    <option value="Peralatan Tools & Maintenance (Nozzle, Scraper, Tang, Kunci L)">
+                      🔧 Peralatan Tools & Maintenance (Nozzle, Scraper, Tang, Kunci L)
+                    </option>
+                    <option value="Perlengkapan Lapak & Finishing (Lem Bed, Alkohol, Cat, Amplas)">
+                      🎨 Perlengkapan Lapak & Finishing (Lem Bed, Alkohol, Cat, Amplas)
+                    </option>
+                    <option value="Kemasan & Packaging (Plastik Klip, Box Kardus, Bubble Wrap)">
+                      📦 Kemasan & Packaging (Plastik Klip, Box Kardus, Bubble Wrap)
+                    </option>
+                    <option value="CUSTOM">
+                      ✏️ + Tulis Kategori Kustom Sendiri...
+                    </option>
                   </select>
+
+                  {isCustomCategory && (
+                    <input
+                      type="text"
+                      className="input-custom"
+                      placeholder="Ketik nama kategori kustom Anda..."
+                      value={customCategoryInput}
+                      onChange={e => setCustomCategoryInput(e.target.value)}
+                      style={{ marginTop: '6px' }}
+                      autoFocus
+                      required
+                    />
+                  )}
                 </div>
 
                 <div>
