@@ -166,4 +166,111 @@ export const seedCatalogCalculatorIfEmpty = async (initialList = []) => {
   }
 };
 
+// ==================== INITIAL CAPITAL: FUNDS (Sumber Dana Modal) ====================
+export const subscribeToCapitalFunds = (onUpdate, onError) => {
+  const fundsRef = collection(db, "initial_capital_funds");
+  return onSnapshot(fundsRef, (snapshot) => {
+    const items = snapshot.docs.map(docSnap => {
+      const data = docSnap.data();
+      return {
+        ...data,
+        id: data.id !== undefined ? data.id : docSnap.id
+      };
+    });
+    onUpdate(items);
+  }, (err) => {
+    console.error("Firestore initial_capital_funds listener error:", err);
+    if (onError) onError(err);
+  });
+};
+
+export const saveCloudCapitalFund = async (fund) => {
+  if (!fund || fund.id === undefined || fund.id === null) return;
+  const cleanFund = JSON.parse(JSON.stringify(fund));
+  const docRef = doc(db, "initial_capital_funds", String(fund.id));
+  await setDoc(docRef, { ...cleanFund, updatedAt: new Date().toISOString() }, { merge: true });
+  return cleanFund;
+};
+
+export const saveAllCloudCapitalFunds = async (fundsList = []) => {
+  if (!Array.isArray(fundsList) || fundsList.length === 0) return;
+  const promises = fundsList.map(fund => saveCloudCapitalFund(fund));
+  await Promise.all(promises);
+};
+
+export const deleteCloudCapitalFund = async (fundId) => {
+  if (fundId === undefined || fundId === null) return;
+  const docRef = doc(db, "initial_capital_funds", String(fundId));
+  await deleteDoc(docRef);
+};
+
+export const seedCapitalFundsIfEmpty = async (initialFunds = []) => {
+  try {
+    const fundsRef = collection(db, "initial_capital_funds");
+    const snapshot = await getDocs(fundsRef);
+    if (snapshot.empty && initialFunds.length > 0) {
+      for (const fund of initialFunds) {
+        const docRef = doc(db, "initial_capital_funds", String(fund.id));
+        await setDoc(docRef, { ...fund, createdAt: new Date().toISOString() });
+      }
+    }
+  } catch (err) {
+    console.warn("Failed to seed capital funds:", err);
+  }
+};
+
+// ==================== INITIAL CAPITAL: ITEMS & STRUK (Belanja Aset Modal) ====================
+export const subscribeToCapitalItems = (onUpdate, onError) => {
+  const itemsRef = collection(db, "initial_capital_items");
+  return onSnapshot(itemsRef, (snapshot) => {
+    const items = snapshot.docs.map(docSnap => {
+      const data = docSnap.data();
+      return {
+        ...data,
+        id: data.id !== undefined ? data.id : docSnap.id
+      };
+    });
+    onUpdate(items);
+  }, (err) => {
+    console.error("Firestore initial_capital_items listener error:", err);
+    if (onError) onError(err);
+  });
+};
+
+export const saveCloudCapitalItem = async (item) => {
+  if (!item || item.id === undefined || item.id === null) return;
+  const cleanItem = JSON.parse(JSON.stringify(item));
+  const docRef = doc(db, "initial_capital_items", String(item.id));
+  await setDoc(docRef, { ...cleanItem, updatedAt: new Date().toISOString() }, { merge: true });
+  return cleanItem;
+};
+
+export const saveAllCloudCapitalItems = async (itemsList = []) => {
+  if (!Array.isArray(itemsList) || itemsList.length === 0) return;
+  const promises = itemsList.map(item => saveCloudCapitalItem(item));
+  await Promise.all(promises);
+};
+
+export const deleteCloudCapitalItem = async (itemId) => {
+  if (itemId === undefined || itemId === null) return;
+  const docRef = doc(db, "initial_capital_items", String(itemId));
+  await deleteDoc(docRef);
+};
+
+export const seedCapitalItemsIfEmpty = async (initialItems = []) => {
+  try {
+    const itemsRef = collection(db, "initial_capital_items");
+    const snapshot = await getDocs(itemsRef);
+    if (snapshot.empty && initialItems.length > 0) {
+      for (const item of initialItems) {
+        const docRef = doc(db, "initial_capital_items", String(item.id));
+        await setDoc(docRef, { ...item, createdAt: new Date().toISOString() });
+      }
+    }
+  } catch (err) {
+    console.warn("Failed to seed capital items:", err);
+  }
+};
+
+
 
