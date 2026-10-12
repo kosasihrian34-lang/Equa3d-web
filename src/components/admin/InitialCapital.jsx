@@ -25,13 +25,25 @@ const DEFAULT_ITEMS = [];
 
 // Kategori Aset & Belanja Terstandarisasi untuk Percetakan 3D
 const ASSET_CATEGORIES = [
-  'Aksesoris & Komponen Produk (Ring Keychain, Bingkai, LED, Magnet, Baut)',
-  'Bahan Baku Cetak (Filament PLA, PETG, Resin UV)',
-  'Mesin & Hardware Utama (3D Printer, Dryer, AMS)',
-  'Peralatan Tools & Maintenance (Nozzle, Scraper, Tang, Kunci L)',
-  'Perlengkapan Lapak & Finishing (Lem Bed, Alkohol, Cat, Amplas)',
-  'Kemasan & Packaging (Plastik Klip, Box Kardus, Bubble Wrap)'
+  'Aksesoris & Komponen Produk',
+  'Bahan Baku Cetak',
+  'Mesin & Hardware Utama',
+  'Peralatan Tools & Maintenance',
+  'Perlengkapan Lapak & Finishing',
+  'Kemasan & Packaging'
 ];
+
+// Helper to normalize older category formats
+const normalizeCategory = (cat) => {
+  if (!cat) return 'Aksesoris & Komponen Produk';
+  if (cat.includes('Aksesoris & Komponen Produk')) return 'Aksesoris & Komponen Produk';
+  if (cat.includes('Bahan Baku Cetak') || cat.includes('Bahan Baku Awal')) return 'Bahan Baku Cetak';
+  if (cat.includes('Mesin & Hardware') || cat.includes('Mesin / Hardware')) return 'Mesin & Hardware Utama';
+  if (cat.includes('Peralatan Tools')) return 'Peralatan Tools & Maintenance';
+  if (cat.includes('Perlengkapan Lapak')) return 'Perlengkapan Lapak & Finishing';
+  if (cat.includes('Kemasan & Packaging')) return 'Kemasan & Packaging';
+  return cat;
+};
 
 // Helper to identify previous dummy records
 const isDummyFundId = (id) => typeof id === 'string' && (id === 'fund-1' || id === 'fund-2' || id === 'fund-3');
@@ -109,7 +121,7 @@ export default function InitialCapital() {
   const [itemForm, setItemForm] = useState({
     date: todayStr,
     name: '',
-    category: 'Aksesoris & Komponen Produk (Ring Keychain, Bingkai, LED, Magnet, Baut)',
+    category: 'Aksesoris & Komponen Produk',
     fundingSource: 'Pribadi',
     price: '',
     qty: 1,
@@ -417,7 +429,7 @@ export default function InitialCapital() {
     setItemForm({
       date: todayStr,
       name: '',
-      category: 'Aksesoris & Komponen Produk (Ring Keychain, Bingkai, LED, Magnet, Baut)',
+      category: 'Aksesoris & Komponen Produk',
       fundingSource: 'Pribadi',
       price: '',
       qty: 1,
@@ -431,7 +443,7 @@ export default function InitialCapital() {
 
   const handleOpenEditItem = (item) => {
     setEditingItem(item);
-    const cat = item.category || 'Aksesoris & Komponen Produk (Ring Keychain, Bingkai, LED, Magnet, Baut)';
+    const cat = normalizeCategory(item.category || 'Aksesoris & Komponen Produk');
     const isStandard = ASSET_CATEGORIES.includes(cat);
     setItemForm({
       date: item.date || todayStr,
@@ -1385,27 +1397,13 @@ export default function InitialCapital() {
                       }
                     }}
                   >
-                    <option value="Aksesoris & Komponen Produk (Ring Keychain, Bingkai, LED, Magnet, Baut)">
-                      🔗 Aksesoris & Komponen (Ring Keychain, Bingkai, LED, Magnet, Baut)
-                    </option>
-                    <option value="Bahan Baku Cetak (Filament PLA, PETG, Resin UV)">
-                      🧵 Bahan Baku Cetak (Filament PLA, PETG, Resin UV)
-                    </option>
-                    <option value="Mesin & Hardware Utama (3D Printer, Dryer, AMS)">
-                      🖨️ Mesin & Hardware Utama (3D Printer, Dryer, AMS)
-                    </option>
-                    <option value="Peralatan Tools & Maintenance (Nozzle, Scraper, Tang, Kunci L)">
-                      🔧 Peralatan Tools & Maintenance (Nozzle, Scraper, Tang, Kunci L)
-                    </option>
-                    <option value="Perlengkapan Lapak & Finishing (Lem Bed, Alkohol, Cat, Amplas)">
-                      🎨 Perlengkapan Lapak & Finishing (Lem Bed, Alkohol, Cat, Amplas)
-                    </option>
-                    <option value="Kemasan & Packaging (Plastik Klip, Box Kardus, Bubble Wrap)">
-                      📦 Kemasan & Packaging (Plastik Klip, Box Kardus, Bubble Wrap)
-                    </option>
-                    <option value="CUSTOM">
-                      ✏️ + Tulis Kategori Kustom Sendiri...
-                    </option>
+                    <option value="Aksesoris & Komponen Produk">Aksesoris & Komponen Produk</option>
+                    <option value="Bahan Baku Cetak">Bahan Baku Cetak</option>
+                    <option value="Mesin & Hardware Utama">Mesin & Hardware Utama</option>
+                    <option value="Peralatan Tools & Maintenance">Peralatan Tools & Maintenance</option>
+                    <option value="Perlengkapan Lapak & Finishing">Perlengkapan Lapak & Finishing</option>
+                    <option value="Kemasan & Packaging">Kemasan & Packaging</option>
+                    <option value="CUSTOM">+ Tulis Kategori Kustom Sendiri...</option>
                   </select>
 
                   {isCustomCategory && (
