@@ -4,7 +4,15 @@ import { InstagramIcon, TikTokIcon } from './SocialIcons';
 import { TRANSLATIONS } from '../data/translations';
 import { getAssetUrl } from '../data/initialProducts';
 
-export default function Footer({ isAdminLoggedIn, onOpenAdminModal, onLogoutAdmin, lang = 'id', onOpenLogoModal, theme = 'light' }) {
+export default function Footer({ 
+  isAdminLoggedIn, 
+  onOpenAdminModal, 
+  onLogoutAdmin, 
+  lang = 'id', 
+  onOpenLogoModal, 
+  theme = 'light',
+  onOpenTracking
+}) {
   const t = TRANSLATIONS[lang] || TRANSLATIONS.id;
 
   return (
@@ -104,14 +112,42 @@ export default function Footer({ isAdminLoggedIn, onOpenAdminModal, onLogoutAdmi
           </div>
         </div>
 
-        {/* Right Area: Only shows Logout Admin when logged in */}
-        {isAdminLoggedIn && (
-          <div>
+        {/* Right Area: Track Order link for public users, Logout for admin */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          {!isAdminLoggedIn && onOpenTracking && (
+            <button
+              type="button"
+              onClick={onOpenTracking}
+              style={{
+                background: 'transparent',
+                border: '1px solid #cbd5e1',
+                padding: '6px 14px',
+                borderRadius: '8px',
+                fontSize: '0.8rem',
+                fontWeight: 600,
+                color: '#475569',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = '#2563eb';
+                e.currentTarget.style.color = '#2563eb';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = '#cbd5e1';
+                e.currentTarget.style.color = '#475569';
+              }}
+            >
+              🔍 {lang === 'en' ? 'Track Custom Order' : 'Lacak Pesanan PO'}
+            </button>
+          )}
+
+          {isAdminLoggedIn && (
             <button onClick={onLogoutAdmin} className="btn-danger">
               Logout Admin
             </button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </footer>
   );

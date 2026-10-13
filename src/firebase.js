@@ -272,5 +272,54 @@ export const seedCapitalItemsIfEmpty = async (initialItems = []) => {
   }
 };
 
+// ==================== CUSTOM ORDERS / PO TRACKING ====================
+export const subscribeToCustomOrders = (onUpdate, onError) => {
+  const ordersRef = collection(db, "custom_orders");
+  return onSnapshot(ordersRef, (snapshot) => {
+    const items = snapshot.docs.map(docSnap => {
+      const data = docSnap.data();
+      return {
+        ...data,
+        id: data.id !== undefined ? data.id : docSnap.id
+      };
+    });
+    onUpdate(items);
+  }, (err) => {
+    console.error("Firestore custom_orders listener error:", err);
+    if (onError) onError(err);
+  });
+};
+
+export const saveCloudCustomOrder = async (order) => {
+  if (!order || (!order.id && !order.orderCode)) return;
+  const docId = String(order.id || order.orderCode);
+  const cleanOrder = JSON.parse(JSON.stringify(order));
+  const docRef = doc(db, "custom_orders", docId);
+  await setDoc(docRef, { ...cleanOrder, updatedAt: new Date().toISOString() }, { merge: true });
+  return cleanOrder;
+};
+
+export const deleteCloudCustomOrder = async (orderId) => {
+  if (!orderId) return;
+  const docRef = doc(db, "custom_orders", String(orderId));
+  await deleteDoc(docRef);
+};
+
+export const seedCustomOrdersIfEmpty = async (initialOrders = []) => {
+  try {
+    const ordersRef = collection(db, "custom_orders");
+    const snapshot = await getDocs(ordersRef);
+    if (snapshot.empty && initialOrders.length > 0) {
+      for (const ord of initialOrders) {
+        const docRef = doc(db, "custom_orders", String(ord.id || ord.orderCode));
+        await setDoc(docRef, { ...ord, createdAt: new Date().toISOString() });
+      }
+    }
+  } catch (err) {
+    console.warn("Failed to seed custom orders to Firestore:", err);
+  }
+};
+
+
 
 

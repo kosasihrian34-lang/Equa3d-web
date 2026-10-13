@@ -3,6 +3,7 @@ import Navbar from './components/Navbar';
 import CatalogSection from './components/CatalogSection';
 import ProductDetailModal from './components/ProductDetailModal';
 import MaterialGuide from './components/MaterialGuide';
+import OrderTracking from './components/OrderTracking';
 import AdminManagement from './components/admin/AdminManagement';
 import AdminLoginModal from './components/AdminLoginModal';
 import AdminProductModal from './components/AdminProductModal';
@@ -17,11 +18,16 @@ import { ShoppingBag } from 'lucide-react';
 
 import { INITIAL_PRODUCTS, parseNumericPrice, formatPriceDisplay } from './data/initialProducts';
 import { TRANSLATIONS } from './data/translations';
+import { getSampleCustomOrders } from './data/customOrderConstants';
 import { 
   subscribeToCloudProducts, 
   saveCloudProduct, 
   deleteCloudProduct, 
-  seedInitialProductsIfEmpty 
+  seedInitialProductsIfEmpty,
+  subscribeToCustomOrders,
+  saveCloudCustomOrder,
+  deleteCloudCustomOrder,
+  seedCustomOrdersIfEmpty
 } from './firebase';
 
 export default function App() {
@@ -137,6 +143,49 @@ export default function App() {
       console.warn("Failed to save favorites to localStorage", err);
     }
   }, [favorites]);
+
+  // Custom Orders / PO State (Real-Time Cloud Firestore Sync with local fallback)
+  const [customOrders, setCustomOrders] = useState(() => {
+    const saved = localStorage.getItem('forge3d_custom_orders');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      } catch (e) {}
+    }
+    return getSampleCustomOrders();
+  });
+
+  const [initialTrackCode, setInitialTrackCode] = useState('');
+
+  // Firebase Real-Time Synchronization for Custom Orders
+  useEffect(() => {
+    // 1. Seed initial sample custom orders if empty
+    seedCustomOrdersIfEmpty(getSampleCustomOrders());
+
+    // 2. Subscribe to real-time changes in Firestore
+    const unsubscribe = subscribeToCustomOrders(
+      (cloudOrders) => {
+        if (Array.isArray(cloudOrders) && cloudOrders.length > 0) {
+          setCustomOrders(cloudOrders);
+          try {
+            localStorage.setItem('forge3d_custom_orders', JSON.stringify(cloudOrders));
+          } catch {}
+        }
+      },
+      (err) => {
+        console.warn("Firestore custom orders sync notice:", err);
+      }
+    );
+
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('forge3d_custom_orders', JSON.stringify(customOrders));
+    } catch (e) {}
+  }, [customOrders]);
 
   const t = TRANSLATIONS[lang] || TRANSLATIONS.id;
 
@@ -288,6 +337,13 @@ export default function App() {
           setSelectedProduct(found);
         }
       }
+
+      // Auto-switch to tracking tab if URL contains ?track=... or ?order=...
+      const trackParam = params.get('track') || params.get('order');
+      if (trackParam) {
+        setUserTab('tracking');
+        setInitialTrackCode(trackParam);
+      }
     } catch {
       // Ignore URL parse errors
     }
@@ -357,6 +413,40 @@ export default function App() {
     }
   };
 
+  // Custom Order CRUD Handlers (with optimistic update & Cloud Firestore sync)
+  const handleSaveCustomOrder = async (orderData) => {
+    setCustomOrders((prev) => {
+      const targetId = orderData.id || orderData.orderCode;
+      const existsIdx = prev.findIndex((o) => (o.id || o.orderCode) === targetId);
+      if (existsIdx >= 0) {
+        const updated = [...prev];
+        updated[existsIdx] = orderData;
+        return updated;
+      } else {
+        return [orderData, ...prev];
+      }
+    });
+
+    try {
+      await saveCloudCustomOrder(orderData);
+      showToast(`Pesanan "${orderData.orderCode || orderData.id}" berhasil disinkronkan ke Cloud! ☁️✨`, "info");
+    } catch (err) {
+      console.warn("Cloud save custom order notice:", err);
+      showToast(`Pesanan "${orderData.orderCode || orderData.id}" tersimpan di lokal.`, "info");
+    }
+  };
+
+  const handleDeleteCustomOrder = async (orderId) => {
+    setCustomOrders((prev) => prev.filter((o) => (o.id || o.orderCode) !== orderId));
+
+    try {
+      await deleteCloudCustomOrder(orderId);
+      showToast(`Pesanan "${orderId}" berhasil dihapus dari Cloud! ☁️`, "info");
+    } catch (err) {
+      console.warn("Cloud delete custom order notice:", err);
+    }
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: 'var(--bg-page)', color: 'var(--text-primary)' }}>
       {/* Navbar Header */}
@@ -407,6 +497,15 @@ export default function App() {
           <MaterialGuide />
         )}
 
+        {!isAdminLoggedIn && userTab === 'tracking' && (
+          <OrderTracking
+            orders={customOrders}
+            initialCode={initialTrackCode}
+            lang={lang}
+            onBackToCatalog={() => setUserTab('catalog')}
+          />
+        )}
+
         {/* Admin Views */}
         {isAdminLoggedIn && adminTab === 'catalog' && (
           <CatalogSection
@@ -427,7 +526,12 @@ export default function App() {
         )}
 
         {isAdminLoggedIn && adminTab === 'management' && (
-          <AdminManagement catalogProducts={products} />
+          <AdminManagement 
+            catalogProducts={products}
+            customOrders={customOrders}
+            onSaveCustomOrder={handleSaveCustomOrder}
+            onDeleteCustomOrder={handleDeleteCustomOrder}
+          />
         )}
       </main>
 
@@ -583,6 +687,7 @@ export default function App() {
         lang={lang}
         onOpenLogoModal={() => setIsLogoModalOpen(true)}
         theme={theme}
+        onOpenTracking={() => setUserTab('tracking')}
       />
     </div>
   );

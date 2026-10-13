@@ -6,11 +6,17 @@ import MultiColorCalculator from './MultiColorCalculator';
 import DailySalesReport from './DailySalesReport';
 import RiskComplexityCalculator from './RiskComplexityCalculator';
 import CatalogPriceCalculator from './CatalogPriceCalculator';
+import CustomOrderManagement from './CustomOrderManagement';
 import { ChevronDown, Shield } from 'lucide-react';
 
-export default function AdminManagement({ catalogProducts = [] }) {
+export default function AdminManagement({ 
+  catalogProducts = [],
+  customOrders = [],
+  onSaveCustomOrder,
+  onDeleteCustomOrder
+}) {
   const [activeSubModule, setActiveSubModule] = useState(() => {
-    return localStorage.getItem('forge3d_admin_submodule') || 'catalog-price-calc';
+    return localStorage.getItem('forge3d_admin_submodule') || 'custom-orders';
   });
 
   useEffect(() => {
@@ -70,6 +76,7 @@ export default function AdminManagement({ catalogProducts = [] }) {
               background: '#f8fafc'
             }}
           >
+            <option value="custom-orders">📦 Pelacakan & Status PO / Custom Order (Slicer Timer)</option>
             <option value="catalog-price-calc">Kalkulator Harga Jual Katalog</option>
             <option value="daily-sales-report">Laporan Penjualan & Produksi Harian (Spreadsheet Sync)</option>
             <option value="risk-complexity-calc">Kalkulator Matrix & Risiko Print 3D (Smart Pricing)</option>
@@ -83,6 +90,13 @@ export default function AdminManagement({ catalogProducts = [] }) {
       </div>
 
       {/* Render Active Sub-Module */}
+      {activeSubModule === 'custom-orders' && (
+        <CustomOrderManagement 
+          orders={customOrders} 
+          onSaveOrder={onSaveCustomOrder} 
+          onDeleteOrder={onDeleteCustomOrder} 
+        />
+      )}
       {activeSubModule === 'catalog-price-calc' && <CatalogPriceCalculator />}
       {activeSubModule === 'daily-sales-report' && <DailySalesReport catalogProducts={catalogProducts} />}
       {activeSubModule === 'risk-complexity-calc' && <RiskComplexityCalculator />}

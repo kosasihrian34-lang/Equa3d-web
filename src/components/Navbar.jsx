@@ -1,5 +1,5 @@
 import React from 'react';
-import { LogOut, Shield, Package, Cpu, BookOpen, Globe, ShoppingBag, Heart, Sun, Moon } from 'lucide-react';
+import { LogOut, Shield, Package, Cpu, BookOpen, Globe, ShoppingBag, Heart, Sun, Moon, Clock } from 'lucide-react';
 import { InstagramIcon, TikTokIcon } from './SocialIcons';
 import { TRANSLATIONS } from '../data/translations';
 import { getAssetUrl } from '../data/initialProducts';
@@ -180,6 +180,28 @@ export default function Navbar({
             >
               <BookOpen size={15} />
               {lang === 'en' ? 'Material Guide' : 'Panduan Bahan'}
+            </button>
+
+            <button
+              onClick={() => setUserTab('tracking')}
+              data-active={userTab === 'tracking'}
+              style={{
+                padding: '6px 14px',
+                borderRadius: '7px',
+                border: 'none',
+                background: userTab === 'tracking' ? 'var(--bg-card)' : 'transparent',
+                color: userTab === 'tracking' ? 'var(--primary-blue)' : 'var(--text-secondary)',
+                fontWeight: 700,
+                fontSize: '0.84rem',
+                cursor: 'pointer',
+                boxShadow: userTab === 'tracking' ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}
+            >
+              <Clock size={15} />
+              {lang === 'en' ? 'Track Order' : 'Lacak Pesanan PO'}
             </button>
           </nav>
         )}
