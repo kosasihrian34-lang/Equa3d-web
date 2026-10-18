@@ -5,9 +5,16 @@ export const getAssetUrl = (path) => {
   if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:')) {
     return path;
   }
+  const baseUrl = import.meta.env.BASE_URL || '/';
+  const cleanBase = baseUrl.replace(/^\/|\/$/g, '');
   const safePath = path.replace(/ /g, '_');
   const cleanPath = safePath.startsWith('/') ? safePath.slice(1) : safePath;
-  const baseUrl = import.meta.env.BASE_URL || '/';
+
+  // Prevent duplicate base URL prefix if path is already resolved
+  if (cleanBase && (cleanPath === cleanBase || cleanPath.startsWith(cleanBase + '/'))) {
+    return `/${cleanPath}`;
+  }
+
   return baseUrl.endsWith('/') ? `${baseUrl}${cleanPath}` : `${baseUrl}/${cleanPath}`;
 };
 
