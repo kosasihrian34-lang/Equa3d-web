@@ -7,6 +7,7 @@ import DailySalesReport from './DailySalesReport';
 import RiskComplexityCalculator from './RiskComplexityCalculator';
 import CatalogPriceCalculator from './CatalogPriceCalculator';
 import CustomOrderManagement from './CustomOrderManagement';
+import HppSpreadsheetCalculator from './HppSpreadsheetCalculator';
 import { ChevronDown, Shield } from 'lucide-react';
 
 export default function AdminManagement({ 
@@ -16,7 +17,7 @@ export default function AdminManagement({
   onDeleteCustomOrder
 }) {
   const [activeSubModule, setActiveSubModule] = useState(() => {
-    return localStorage.getItem('forge3d_admin_submodule') || 'custom-orders';
+    return localStorage.getItem('forge3d_admin_submodule') || 'hpp-spreadsheet';
   });
 
   useEffect(() => {
@@ -56,13 +57,13 @@ export default function AdminManagement({
               Fungsi & Manajemen Operasional Percetakan
             </h2>
             <div style={{ fontSize: '0.8rem', color: '#64748b' }}>
-              Pilih kalkulator harga jual katalog, pencatatan modal, pengeluaran mingguan, proyeksi omset, atau kalkulator matriks risiko.
+              Pilih spreadsheet HPP souvenir wisuda, kalkulator harga jual katalog, pencatatan modal, pengeluaran mingguan, atau pelacakan PO.
             </div>
           </div>
         </div>
 
         {/* Dropdown Menu Selector */}
-        <div style={{ position: 'relative', minWidth: '320px' }}>
+        <div style={{ position: 'relative', minWidth: '340px' }}>
           <select
             value={activeSubModule}
             onChange={(e) => setActiveSubModule(e.target.value)}
@@ -72,10 +73,11 @@ export default function AdminManagement({
               fontWeight: 700,
               color: '#0f172a',
               cursor: 'pointer',
-              border: '2px solid #2563eb',
+              border: '2px solid #107c41',
               background: '#f8fafc'
             }}
           >
+            <option value="hpp-spreadsheet">📊 Kalkulator HPP Cetak & Souvenir Wisuda (Spreadsheet Excel)</option>
             <option value="custom-orders">📦 Pelacakan & Status PO / Custom Order (Slicer Timer)</option>
             <option value="catalog-price-calc">Kalkulator Harga Jual Katalog</option>
             <option value="daily-sales-report">Laporan Penjualan & Produksi Harian (Spreadsheet Sync)</option>
@@ -85,11 +87,14 @@ export default function AdminManagement({
             <option value="revenue-breakdown">Perhitungan Omset Mingguan & Bulanan</option>
             <option value="multi-color-calc">Kalkulator Cetak Custom Multi-Warna</option>
           </select>
-          <ChevronDown size={16} color="#2563eb" style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
+          <ChevronDown size={16} color="#107c41" style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
         </div>
       </div>
 
       {/* Render Active Sub-Module */}
+      {activeSubModule === 'hpp-spreadsheet' && (
+        <HppSpreadsheetCalculator catalogProducts={catalogProducts} />
+      )}
       {activeSubModule === 'custom-orders' && (
         <CustomOrderManagement 
           orders={customOrders} 
